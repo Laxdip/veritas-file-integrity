@@ -36,5 +36,5 @@ MIT
 ## Author
 Prasad
 
-🙏 Credits
+## Credits
 Built with ❤️ by Prasad
