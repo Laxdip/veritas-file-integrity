@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VERITAS · File Integrity System</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --c:#00f5d4;--c2:rgba(0,245,212,.12);--c3:rgba(0,245,212,.06);--c4:rgba(0,245,212,.04);
+  --amber:#ffc107;--red:#ff4757;--green:#2ed573;--purple:#a78bfa;--blue:#38bdf8;
+  --bg:#03050a;--surface:rgba(8,12,22,.85);--surface2:rgba(12,18,30,.9);--border:rgba(0,245,212,.1);--border2:rgba(0,245,212,.18);
+  --text:#dde8f5;--muted:rgba(200,220,240,.45);--dim:rgba(200,220,240,.2);
+  --font:'JetBrains Mono',monospace;--font2:'Syne',sans-serif;
+  --r:14px;--r2:10px;--r3:8px;
+  --glow:0 0 24px rgba(0,245,212,.12);
+  --glow2:0 0 40px rgba(0,245,212,.18);
+}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(0,245,212,.25);border-radius:2px}
+html{scroll-behavior:smooth}
+body{font-family:var(--font2);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:0;
+  background:radial-gradient(ellipse 80% 50% at 80% 0%,rgba(0,100,90,.2) 0%,transparent 60%),
+             radial-gradient(ellipse 60% 40% at 5% 90%,rgba(0,60,80,.15) 0%,transparent 55%),
+             radial-gradient(ellipse 40% 30% at 50% 50%,rgba(0,20,30,.8) 0%,transparent 70%);
+  pointer-events:none}
+.mono{font-family:var(--font)!important}
+#particle-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.6}
+
+/* ── LAYOUT ── */
+.container{position:relative;z-index:10;max-width:1420px;margin:0 auto;padding:20px 20px 80px}
+
+/* ── HEADER ── */
+.header{background:var(--surface);backdrop-filter:blur(20px);border:1px solid var(--border2);border-radius:var(--r);padding:14px 24px;margin-bottom:24px;box-shadow:0 4px 32px rgba(0,0,0,.6),var(--glow)}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.logo{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.logo-ico{width:38px;height:38px;background:linear-gradient(135deg,rgba(0,245,212,.15),rgba(0,245,212,.05));border:1px solid rgba(0,245,212,.35);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--c);font-size:17px;box-shadow:0 0 14px rgba(0,245,212,.15)}
+.logo-txt{font-family:var(--font2);font-size:17px;font-weight:800;letter-spacing:2px;color:#fff}
+.logo-badge{background:var(--c3);border:1px solid var(--border);padding:2px 8px;border-radius:4px;font-size:9px;color:var(--c);font-family:var(--font);margin-left:6px;letter-spacing:.8px}
+.nav-tabs{display:flex;gap:4px;background:rgba(0,0,0,.3);padding:4px;border-radius:9px;border:1px solid var(--border)}
+.nav-tab{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:.6px;color:var(--muted);cursor:pointer;transition:all .2s;background:none;border:none;font-family:var(--font2)}
+.nav-tab.active{background:var(--c2);color:var(--c);box-shadow:0 0 12px rgba(0,245,212,.1)}
+.nav-tab:hover:not(.active){color:var(--text)}
+.nav-right{display:flex;align-items:center;gap:16px}
+.nav-status{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);font-family:var(--font)}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+.clock{font-size:11px;font-family:var(--font);color:var(--muted);letter-spacing:.5px}
+
+/* ── HERO ── */
+.hero{margin-bottom:22px}
+.hero-title{font-family:var(--font2);font-size:26px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:10px;letter-spacing:-.3px}
+.hero-title .accent{color:var(--c)}
+.hero-sub{color:var(--muted);font-size:11px;font-family:var(--font);border-left:2px solid var(--c);padding-left:12px;letter-spacing:.3px}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:22px}
+.stat-card{background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:var(--r2);padding:16px;transition:all .25s;cursor:default;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,245,212,.3),transparent);opacity:0;transition:opacity .3s}
+.stat-card:hover::before{opacity:1}
+.stat-card:hover{border-color:rgba(0,245,212,.25);transform:translateY(-2px);box-shadow:var(--glow)}
+.stat-label{color:var(--muted);font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;font-weight:600}
+.stat-value{font-size:24px;font-weight:700;color:var(--c);font-family:var(--font);line-height:1}
+.stat-value.amber{color:var(--amber)}
+.stat-value.red{color:var(--red)}
+.stat-value.green{color:var(--green)}
+.stat-value.sm{font-size:16px;margin-top:2px}
+.stat-unit{font-size:10px;color:var(--dim);margin-top:4px;font-family:var(--font)}
+
+/* ── TABS CONTENT ── */
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* ── MAIN GRID ── */
+.main-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:20px;margin-bottom:20px;align-items:start}
+
+/* ── CARD ── */
+.card{background:var(--surface);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:var(--r);padding:22px;transition:border-color .25s;position:relative}
+.card:hover{border-color:rgba(0,245,212,.2)}
+.card+.card{margin-top:18px}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.card-header h2{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;font-family:var(--font2);letter-spacing:.2px}
+.card-header h2 i{color:var(--c);font-size:14px}
+.card-badge{background:var(--c3);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:9.5px;color:var(--c);font-family:var(--font);letter-spacing:.5px}
+.card-badge.amber{background:rgba(255,193,7,.08);border-color:rgba(255,193,7,.2);color:var(--amber)}
+.card-badge.purple{background:rgba(167,139,250,.08);border-color:rgba(167,139,250,.2);color:var(--purple)}
+
+/* ── UPLOAD ── */
+.upload-area{border:1.5px dashed rgba(0,245,212,.22);border-radius:var(--r2);padding:28px 20px;text-align:center;cursor:pointer;transition:all .25s;background:rgba(0,0,0,.15);position:relative;margin-bottom:16px}
+.upload-area:hover{border-color:var(--c);background:rgba(0,245,212,.03);box-shadow:0 0 30px rgba(0,245,212,.06)}
+.upload-area.dragover{border-color:var(--c);background:rgba(0,245,212,.06);transform:scale(1.005);box-shadow:var(--glow2)}
+.upload-area input[type=file]{display:none}
+.upload-ico{font-size:28px;color:var(--c);margin-bottom:10px;opacity:.8}
+.upload-txt{font-weight:600;font-size:13px;margin-bottom:3px;font-family:var(--font2)}
+.upload-hint{color:var(--muted);font-size:10.5px;font-family:var(--font)}
+.file-preview{display:none;margin-bottom:16px;background:rgba(0,245,212,.03);border:1px solid rgba(0,245,212,.15);border-radius:var(--r2);padding:13px}
+.file-preview.show{display:block;animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.file-details{display:flex;align-items:center;gap:11px}
+.file-ico{width:36px;height:36px;background:var(--c3);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--c);flex-shrink:0;font-size:15px}
+.file-meta{flex:1;min-width:0}
+.file-name{font-weight:600;font-size:12.5px;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--font2)}
+.file-size-el{color:var(--muted);font-size:10.5px;font-family:var(--font)}
+.file-type-badge{display:inline-block;margin-left:7px;padding:1px 6px;border-radius:3px;font-size:9.5px;background:var(--c3);color:var(--c);border:1px solid var(--border)}
+.btn-remove{background:none;border:none;color:var(--dim);cursor:pointer;padding:6px;border-radius:5px;transition:all .2s;flex-shrink:0}
+.btn-remove:hover{color:var(--red);background:rgba(255,71,87,.1)}
+.file-meta-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.file-meta-tag{font-size:9.5px;font-family:var(--font);padding:2px 7px;border-radius:3px;background:rgba(0,0,0,.3);border:1px solid var(--border);color:var(--muted)}
+
+/* ── ALGO ── */
+.algo-row{display:flex;justify-content:space-between;align-items:center;margin:0 0 10px}
+.algo-row-label{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;font-weight:600}
+.algo-link{font-size:10.5px;color:var(--c);cursor:pointer;background:none;border:none;font-family:var(--font2);font-weight:600;transition:opacity .2s}
+.algo-link:hover{opacity:.7}
+.algo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px}
+.algo-item{display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(0,0,0,.18);border:1px solid rgba(0,245,212,.08);border-radius:var(--r3);cursor:pointer;transition:all .2s;user-select:none}
+.algo-item:hover{border-color:rgba(0,245,212,.25);background:rgba(0,245,212,.03)}
+.algo-item.selected{border-color:rgba(0,245,212,.35);background:rgba(0,245,212,.05)}
+.algo-item input{display:none}
+.algo-check{width:15px;height:15px;border:1.5px solid rgba(0,245,212,.3);border-radius:3px;position:relative;transition:all .18s;flex-shrink:0}
+.algo-item input:checked+.algo-check{background:var(--c);border-color:var(--c);box-shadow:0 0 8px rgba(0,245,212,.3)}
+.algo-item input:checked+.algo-check::after{content:'\f00c';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#000;font-size:8px}
+.algo-name{font-size:11px;font-weight:700;color:rgba(255,255,255,.85);font-family:var(--font);flex:1}
+.algo-bits{font-size:9.5px;color:var(--dim);font-family:var(--font)}
+.algo-sec{font-size:8.5px;padding:1px 5px;border-radius:3px}
+.algo-sec.weak{background:rgba(255,193,7,.12);color:var(--amber);border:1px solid rgba(255,193,7,.2)}
+.algo-sec.strong{background:rgba(0,245,212,.08);color:var(--c);border:1px solid rgba(0,245,212,.15)}
+.algo-sec.medium{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
+
+/* ── PROGRESS ── */
+.progress-wrap{display:none;margin-bottom:14px}
+.progress-wrap.show{display:block;animation:fadeUp .25s}
+.progress-label{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-bottom:6px;font-family:var(--font)}
+.progress-bar{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;width:0%;border-radius:2px;background:linear-gradient(90deg,var(--c),var(--blue));transition:width .35s ease;position:relative}
+.progress-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);animation:shim 1.1s infinite}
+@keyframes shim{from{transform:translateX(-100%)}to{transform:translateX(200%)}  }
+
+/* ── BUTTONS ── */
+.btn-primary{width:100%;padding:12px;background:transparent;border:1px solid var(--c);border-radius:var(--r3);color:var(--c);font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .22s;text-transform:uppercase;letter-spacing:.8px;font-family:var(--font2)}
+.btn-primary:hover:not(:disabled){background:rgba(0,245,212,.07);box-shadow:0 0 20px rgba(0,245,212,.15);transform:translateY(-1px)}
+.btn-primary:active:not(:disabled){transform:translateY(0)}
+.btn-primary:disabled{opacity:.28;cursor:not-allowed;border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.15)}
+.btn-secondary{padding:10px 16px;background:transparent;border:1px solid rgba(0,245,212,.2);border-radius:var(--r3);color:var(--muted);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;font-family:var(--font2);font-weight:600;white-space:nowrap}
+.btn-secondary:hover{border-color:var(--c);color:var(--c);background:rgba(0,245,212,.04)}
+
+/* ── TEXT INPUT ── */
+.input-field{width:100%;padding:10px 13px;background:rgba(0,0,0,.4);border:1px solid rgba(0,245,212,.15);border-radius:var(--r3);color:#fff;font-family:var(--font);font-size:11.5px;transition:all .2s;outline:none}
+.input-field:focus{border-color:var(--c);background:rgba(0,0,0,.5);box-shadow:0 0 0 3px rgba(0,245,212,.06)}
+.input-field::placeholder{color:var(--dim)}
+.textarea-field{resize:vertical;min-height:68px;line-height:1.5}
+
+/* ── HASH RESULTS ── */
+.hash-card{background:rgba(0,0,0,.22);border:1px solid rgba(0,245,212,.1);border-radius:var(--r3);padding:14px;margin-bottom:10px;transition:all .2s;cursor:default}
+.hash-card:hover{border-color:rgba(0,245,212,.22)}
+.hash-card.matched{border-color:var(--green)!important;background:rgba(46,213,115,.04)}
+.hash-card.mismatched{border-color:var(--red)!important;background:rgba(255,71,87,.04)}
+.hash-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.hash-name-row{display:flex;align-items:center;gap:7px}
+.hash-name{font-size:10.5px;font-weight:700;color:var(--c);text-transform:uppercase;letter-spacing:.7px;font-family:var(--font)}
+.hash-len{font-size:9.5px;color:var(--dim);font-family:var(--font)}
+.hash-actions{display:flex;gap:5px}
+.copy-btn{background:none;border:1px solid rgba(0,245,212,.18);color:rgba(0,245,212,.55);padding:3px 8px;border-radius:3px;font-size:9.5px;cursor:pointer;transition:all .18s;font-family:var(--font2);font-weight:600}
+.copy-btn:hover{background:rgba(0,245,212,.08);border-color:var(--c);color:var(--c)}
+.copy-btn.qr-btn{border-color:rgba(167,139,250,.25);color:rgba(167,139,250,.6)}
+.copy-btn.qr-btn:hover{background:rgba(167,139,250,.08);border-color:var(--purple);color:var(--purple)}
+.hash-value{font-family:var(--font);font-size:11px;color:rgba(255,255,255,.82);background:rgba(0,0,0,.4);padding:9px 11px;border-radius:5px;word-break:break-all;border:1px solid rgba(0,245,212,.07);line-height:1.7;cursor:text;transition:border-color .2s}
+.hash-value::selection{background:rgba(0,245,212,.25)}
+.hash-value:hover{border-color:rgba(0,245,212,.18)}
+
+/* ── EXPORT ── */
+.export-row{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap}
+.btn-export{flex:1;padding:8px 10px;background:rgba(0,0,0,.2);border:1px solid rgba(0,245,212,.12);border-radius:var(--r3);color:var(--muted);font-size:10.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .2s;font-family:var(--font2);font-weight:600;min-width:90px}
+.btn-export:hover{border-color:var(--c);color:var(--c);background:rgba(0,245,212,.04)}
+.btn-export.active-export{border-color:rgba(56,189,248,.3);color:var(--blue)}
+.btn-export.active-export:hover{border-color:var(--blue);background:rgba(56,189,248,.05)}
+
+/* ── VERIFY ── */
+.section-box{margin-top:18px;padding:16px;background:rgba(0,0,0,.15);border:1px solid rgba(0,245,212,.1);border-radius:var(--r2)}
+.section-title{font-size:12px;font-weight:700;margin-bottom:13px;display:flex;align-items:center;gap:7px;color:var(--c);font-family:var(--font2);letter-spacing:.2px}
+.verify-row{display:flex;gap:7px;margin-bottom:10px}
+.result-box{padding:10px 13px;border-radius:6px;display:none;align-items:center;gap:8px;font-size:11px;font-family:var(--font)}
+.result-box.show{display:flex;animation:fadeUp .25s}
+.result-box.success{background:rgba(46,213,115,.07);border:1px solid rgba(46,213,115,.28);color:var(--green)}
+.result-box.danger{background:rgba(255,71,87,.07);border:1px solid rgba(255,71,87,.28);color:var(--red)}
+.result-hint{font-size:9.5px;color:var(--dim);margin-top:6px;font-family:var(--font)}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:10px}
+.compare-label{font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;font-weight:600}
+.result-box.match{background:rgba(46,213,115,.07);border:1px solid rgba(46,213,115,.28);color:var(--green)}
+.result-box.nomatch{background:rgba(255,71,87,.07);border:1px solid rgba(255,71,87,.28);color:var(--red)}
+
+/* ── STRING HASHING ── */
+.string-input-wrap{margin-bottom:14px}
+.char-count{font-size:10px;color:var(--dim);text-align:right;margin-top:4px;font-family:var(--font)}
+.algo-pills{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.algo-pill{padding:5px 11px;border-radius:20px;font-size:10px;font-family:var(--font);font-weight:600;cursor:pointer;border:1px solid rgba(0,245,212,.15);background:rgba(0,0,0,.2);color:var(--muted);transition:all .18s}
+.algo-pill.active{border-color:rgba(0,245,212,.4);background:rgba(0,245,212,.08);color:var(--c)}
+.algo-pill:hover:not(.active){border-color:rgba(0,245,212,.25);color:var(--text)}
+.string-hash-results{display:none}
+.string-hash-results.show{display:block;animation:fadeUp .3s}
+.str-result-card{background:rgba(0,0,0,.22);border:1px solid rgba(0,245,212,.1);border-radius:var(--r3);padding:12px;margin-bottom:8px}
+.str-result-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.str-result-name{font-size:10.5px;font-weight:700;color:var(--c);font-family:var(--font);letter-spacing:.5px}
+.str-hash-val{font-family:var(--font);font-size:10.5px;color:rgba(255,255,255,.8);word-break:break-all;line-height:1.6;background:rgba(0,0,0,.35);padding:8px 10px;border-radius:4px;border:1px solid rgba(0,245,212,.06)}
+.encoding-row{display:flex;gap:6px;margin-bottom:12px;align-items:center}
+.encoding-label{font-size:10px;color:var(--muted);margin-right:2px;font-family:var(--font);white-space:nowrap}
+.enc-btn{padding:4px 10px;border-radius:4px;font-size:10px;font-family:var(--font);font-weight:600;cursor:pointer;border:1px solid rgba(0,245,212,.15);background:rgba(0,0,0,.2);color:var(--muted);transition:all .15s}
+.enc-btn.active{border-color:rgba(0,245,212,.4);background:rgba(0,245,212,.08);color:var(--c)}
+
+/* ── HISTORY ── */
+.history-section{background:var(--surface);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-top:0}
+.history-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.history-header h3{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;font-family:var(--font2)}
+.history-header h3 i{color:var(--c)}
+.history-controls{display:flex;gap:8px}
+.btn-clear{padding:5px 12px;background:transparent;border:1px solid rgba(255,71,87,.25);border-radius:5px;color:var(--red);font-size:10.5px;cursor:pointer;transition:all .2s;font-family:var(--font2);font-weight:600}
+.btn-clear:hover{background:rgba(255,71,87,.08);border-color:var(--red)}
+.btn-export-hist{padding:5px 12px;background:transparent;border:1px solid rgba(0,245,212,.2);border-radius:5px;color:var(--muted);font-size:10.5px;cursor:pointer;transition:all .2s;font-family:var(--font2);font-weight:600}
+.btn-export-hist:hover{border-color:var(--c);color:var(--c)}
+.history-list{max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:7px}
+.history-item{display:flex;align-items:center;gap:11px;padding:11px 13px;background:rgba(0,0,0,.18);border:1px solid rgba(0,245,212,.07);border-radius:var(--r3);transition:all .2s;cursor:pointer}
+.history-item:hover{border-color:rgba(0,245,212,.2);background:rgba(0,245,212,.02)}
+.history-ico{width:30px;height:30px;background:var(--c3);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--c);font-size:12px;flex-shrink:0}
+.history-info{flex:1;min-width:0}
+.history-filename{font-size:12px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--font2)}
+.history-meta{font-size:9.5px;color:var(--dim);font-family:var(--font)}
+.history-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0}
+.history-status{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:.5px;font-family:var(--font)}
+.history-status.pending{background:rgba(0,245,212,.1);color:var(--c)}
+.history-status.verified{background:rgba(46,213,115,.1);color:var(--green)}
+.history-status.modified{background:rgba(255,71,87,.1);color:var(--red)}
+.history-hash{font-size:9px;color:var(--dim);font-family:var(--font)}
+.history-empty{text-align:center;padding:28px;color:var(--dim);font-size:12px}
+.history-empty i{font-size:22px;margin-bottom:7px;display:block;opacity:.3}
+
+/* ── BATCH ── */
+.batch-drop{border:1.5px dashed rgba(0,245,212,.2);border-radius:var(--r2);padding:24px 20px;text-align:center;cursor:pointer;transition:all .25s;background:rgba(0,0,0,.12);margin-bottom:16px}
+.batch-drop:hover,.batch-drop.dragover{border-color:var(--c);background:rgba(0,245,212,.03)}
+.batch-drop input[type=file]{display:none}
+.batch-list{display:flex;flex-direction:column;gap:7px;margin-bottom:14px;max-height:320px;overflow-y:auto}
+.batch-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(0,0,0,.2);border:1px solid rgba(0,245,212,.08);border-radius:var(--r3);font-size:11.5px}
+.batch-item-ico{width:28px;height:28px;background:var(--c3);border-radius:5px;display:flex;align-items:center;justify-content:center;color:var(--c);font-size:11px;flex-shrink:0}
+.batch-item-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:var(--font2);font-size:11.5px;font-weight:500}
+.batch-item-size{font-size:10px;color:var(--dim);font-family:var(--font);flex-shrink:0}
+.batch-item-status{font-size:9.5px;font-family:var(--font);padding:2px 7px;border-radius:3px;flex-shrink:0}
+.batch-item-status.pending{background:rgba(0,245,212,.08);color:var(--c)}
+.batch-item-status.done{background:rgba(46,213,115,.1);color:var(--green)}
+.batch-item-status.error{background:rgba(255,71,87,.1);color:var(--red)}
+.batch-item-remove{background:none;border:none;color:var(--dim);cursor:pointer;padding:3px;transition:color .15s;font-size:12px;flex-shrink:0}
+.batch-item-remove:hover{color:var(--red)}
+.batch-empty{text-align:center;padding:18px;color:var(--dim);font-size:11px}
+
+/* ── QR MODAL ── */
+.modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;animation:fadeIn .2s}
+.modal-overlay.show{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:28px;max-width:380px;width:90%;animation:popIn .25s ease;box-shadow:0 24px 80px rgba(0,0,0,.8),var(--glow)}
+@keyframes popIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:none}}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-title{font-size:14px;font-weight:700;font-family:var(--font2);display:flex;align-items:center;gap:8px}
+.modal-title i{color:var(--c)}
+.modal-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;transition:color .2s;padding:2px}
+.modal-close:hover{color:var(--text)}
+.qr-wrap{background:rgba(255,255,255,.97);border-radius:10px;padding:16px;text-align:center;margin-bottom:14px}
+.qr-wrap img,.qr-wrap canvas{display:block;margin:0 auto;border-radius:4px}
+.qr-info{font-size:10px;color:var(--muted);text-align:center;font-family:var(--font);word-break:break-all;line-height:1.6}
+
+/* ── TOAST ── */
+.toast-container{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:7px}
+.toast{display:flex;align-items:center;gap:9px;padding:11px 16px;border-radius:var(--r3);font-size:12px;font-weight:600;background:rgba(8,14,26,.97);backdrop-filter:blur(14px);border:1px solid rgba(0,245,212,.18);animation:toastIn .28s ease;max-width:300px;box-shadow:0 8px 28px rgba(0,0,0,.6);font-family:var(--font2)}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+.toast.success{border-color:rgba(46,213,115,.3);color:var(--green)}
+.toast.error{border-color:rgba(255,71,87,.3);color:var(--red)}
+.toast.warning{border-color:rgba(255,193,7,.3);color:var(--amber)}
+.toast.info{border-color:rgba(0,245,212,.22);color:var(--c)}
+
+/* ── FOOTER ── */
+.footer{text-align:center;padding:20px;color:var(--dim);font-size:10.5px;font-family:var(--font);letter-spacing:.3px;border-top:1px solid var(--border);margin-top:22px}
+.footer span{color:var(--c);opacity:.7}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:linear-gradient(90deg,transparent,rgba(0,245,212,.15),transparent);margin:16px 0}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1200px){.stats-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:960px){.main-grid{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){.stats-grid{grid-template-columns:repeat(2,1fr)}.nav-tabs{display:none}.compare-grid{grid-template-columns:1fr}.export-row{flex-wrap:wrap}.algo-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="particle-canvas"></canvas>
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="header">
+    <nav class="nav">
+      <div class="logo">
+        <div class="logo-ico"><i class="fas fa-shield-halved"></i></div>
+        <div class="logo-txt">VERITAS <span class="logo-badge">v3.0 · Prasad</span></div>
+      </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-tab="file">FILE HASH</button>
+        <button class="nav-tab" data-tab="text">TEXT HASH</button>
+        <button class="nav-tab" data-tab="batch">BATCH</button>
+        <button class="nav-tab" data-tab="compare">COMPARE</button>
+      </div>
+      <div class="nav-right">
+        <div id="clockDisplay" class="clock">--:--:--</div>
+        <div class="nav-status"><div class="status-dot"></div><span>SECURE</span></div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-title"><i class="fas fa-fingerprint accent"></i>&nbsp;<span class="accent">File Integrity</span>&nbsp;Verification System</div>
+    <div class="hero-sub mono">$ Cryptographic hash generation · MD5 · SHA-1 · SHA-256 · SHA-512 · SHA-3 · RIPEMD-160 · BLAKE2 · Real-time tamper detection</div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-label">Files Scanned</div><div class="stat-value mono" id="totalScans">0</div></div>
+    <div class="stat-card"><div class="stat-label">Authentic</div><div class="stat-value mono green" id="verifiedCount">0</div></div>
+    <div class="stat-card"><div class="stat-label">Modified</div><div class="stat-value mono red" id="modifiedCount">0</div></div>
+    <div class="stat-card"><div class="stat-label">Strings Hashed</div><div class="stat-value mono amber" id="stringsCount">0</div></div>
+    <div class="stat-card"><div class="stat-label">Last Scan</div><div class="stat-value mono sm" id="lastScan">--:--:--</div></div>
+    <div class="stat-card"><div class="stat-label">Avg Speed</div><div class="stat-value mono sm" id="avgSpeed">—</div><div class="stat-unit">MB/s</div></div>
+  </div>
+
+  <!-- ═══════════ TAB: FILE HASH ═══════════ -->
+  <div class="tab-content active" id="tab-file">
+    <div class="main-grid">
+      <!-- LEFT: Upload + Algorithms -->
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <h2><i class="fas fa-cloud-upload-alt"></i> File Upload</h2>
+            <span class="card-badge">STEP 1</span>
+          </div>
+          <div class="upload-area" id="uploadArea">
+            <input type="file" id="fileInput">
+            <i class="fas fa-cloud-upload-alt upload-ico"></i>
+            <div class="upload-txt">Drop any file here or click to browse</div>
+            <div class="upload-hint">All file types · No size limit · 100% local processing</div>
+          </div>
+          <div class="file-preview" id="filePreview">
+            <div class="file-details">
+              <div class="file-ico"><i class="fas fa-file-code" id="fileTypeIcon"></i></div>
+              <div class="file-meta">
+                <div class="file-name" id="fileName">—</div>
+                <div class="file-size-el" id="fileSize">— <span class="file-type-badge" id="fileTypeBadge"></span></div>
+              </div>
+              <button class="btn-remove" id="btnRemove" title="Remove file"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="file-meta-row" id="fileMetaRow"></div>
+          </div>
+
+          <div class="algo-row">
+            <span class="algo-row-label">Hash Algorithms</span>
+            <button class="algo-link" id="toggleAllBtn">Select All</button>
+          </div>
+          <div class="algo-grid" id="algoGrid">
+            <label class="algo-item selected" id="algoMD5"><input type="checkbox" id="md5Check" checked><span class="algo-check"></span><span class="algo-name">MD5</span><span class="algo-bits">128-bit</span><span class="algo-sec weak">LEGACY</span></label>
+            <label class="algo-item selected" id="algoSHA1"><input type="checkbox" id="sha1Check" checked><span class="algo-check"></span><span class="algo-name">SHA-1</span><span class="algo-bits">160-bit</span><span class="algo-sec weak">WEAK</span></label>
+            <label class="algo-item selected" id="algoSHA256"><input type="checkbox" id="sha256Check" checked><span class="algo-check"></span><span class="algo-name">SHA-256</span><span class="algo-bits">256-bit</span><span class="algo-sec strong">SECURE</span></label>
+            <label class="algo-item" id="algoSHA512"><input type="checkbox" id="sha512Check"><span class="algo-check"></span><span class="algo-name">SHA-512</span><span class="algo-bits">512-bit</span><span class="algo-sec strong">SECURE</span></label>
+            <label class="algo-item" id="algoSHA3"><input type="checkbox" id="sha3Check"><span class="algo-check"></span><span class="algo-name">SHA-3</span><span class="algo-bits">256-bit</span><span class="algo-sec strong">MODERN</span></label>
+            <label class="algo-item" id="algoRIPEMD"><input type="checkbox" id="ripemdCheck"><span class="algo-check"></span><span class="algo-name">RIPEMD</span><span class="algo-bits">160-bit</span><span class="algo-sec medium">ALT</span></label>
+          </div>
+
+          <div class="progress-wrap" id="progressWrap">
+            <div class="progress-label"><span id="progressText">Computing…</span><span id="progressPct">0%</span></div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+          </div>
+          <button class="btn-primary" id="calculateBtn" disabled><i class="fas fa-calculator"></i> Generate Hashes</button>
+        </div>
+      </div>
+
+      <!-- RIGHT: Results -->
+      <div>
+        <div class="card" id="resultsCard" style="display:none">
+          <div class="card-header">
+            <h2><i class="fas fa-fingerprint"></i> Hash Results</h2>
+            <span class="card-badge">STEP 2</span>
+          </div>
+          <div id="hashResults"></div>
+          <div class="export-row">
+            <button class="btn-export" id="exportTxt"><i class="fas fa-file-alt"></i> TXT</button>
+            <button class="btn-export" id="exportJson"><i class="fas fa-file-code"></i> JSON</button>
+            <button class="btn-export active-export" id="exportCsv"><i class="fas fa-table"></i> CSV</button>
+            <button class="btn-export" id="copyAll"><i class="fas fa-copy"></i> Copy All</button>
+          </div>
+
+          <!-- VERIFY -->
+          <div class="section-box">
+            <div class="section-title"><i class="fas fa-shield-halved"></i> Verify Against Known Hash</div>
+            <div class="verify-row">
+              <input type="text" class="input-field mono" id="verifyHashInput" placeholder="Paste expected hash to verify…" autocomplete="off" spellcheck="false">
+              <button class="btn-secondary" id="verifyBtn">Verify</button>
+            </div>
+            <div class="result-box" id="verifyResult"><span id="verifyMessage"></span></div>
+            <div class="result-hint" id="verifyHint"></div>
+          </div>
+        </div>
+
+        <!-- placeholder when no results -->
+        <div class="card" id="resultsPlaceholder">
+          <div style="text-align:center;padding:40px 20px;color:var(--dim)">
+            <i class="fas fa-fingerprint" style="font-size:32px;margin-bottom:12px;display:block;opacity:.2;color:var(--c)"></i>
+            <div style="font-size:12px;font-family:var(--font)">Upload a file and click<br><strong style="color:var(--c)">Generate Hashes</strong> to see results</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="history-section">
+      <div class="history-header">
+        <h3><i class="fas fa-clock-rotate-left"></i> Scan History</h3>
+        <div class="history-controls">
+          <button class="btn-export-hist" id="exportHistBtn"><i class="fas fa-download"></i> Export</button>
+          <button class="btn-clear" id="clearHistoryBtn"><i class="fas fa-trash-alt"></i> Clear</button>
+        </div>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="history-empty"><i class="fas fa-inbox"></i>No scans yet</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TAB: TEXT HASH ═══════════ -->
+  <div class="tab-content" id="tab-text">
+    <div class="main-grid">
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <h2><i class="fas fa-font"></i> Hash Any String or Text</h2>
+            <span class="card-badge amber">TEXT MODE</span>
+          </div>
+          <div class="string-input-wrap">
+            <textarea class="input-field textarea-field" id="stringInput" placeholder="Type or paste any text here…" rows="5"></textarea>
+            <div class="char-count"><span id="charCount">0</span> characters</div>
+          </div>
+          <div class="encoding-row">
+            <span class="encoding-label">OUTPUT:</span>
+            <button class="enc-btn active" data-enc="hex">HEX</button>
+            <button class="enc-btn" data-enc="base64">BASE64</button>
+            <button class="enc-btn" data-enc="upper">UPPERCASE</button>
+          </div>
+          <div class="algo-pills" id="textAlgoPills">
+            <button class="algo-pill active" data-algo="md5">MD5</button>
+            <button class="algo-pill active" data-algo="sha1">SHA-1</button>
+            <button class="algo-pill active" data-algo="sha256">SHA-256</button>
+            <button class="algo-pill" data-algo="sha512">SHA-512</button>
+            <button class="algo-pill" data-algo="sha3">SHA-3</button>
+            <button class="algo-pill" data-algo="ripemd">RIPEMD-160</button>
+          </div>
+          <button class="btn-primary" id="hashStringBtn"><i class="fas fa-bolt"></i> Hash Text</button>
+        </div>
+      </div>
+      <div>
+        <div class="card" id="strResultsCard" style="display:none">
+          <div class="card-header">
+            <h2><i class="fas fa-hashtag"></i> Text Hash Results</h2>
+            <span class="card-badge amber">OUTPUT</span>
+          </div>
+          <div id="strHashResults"></div>
+          <div class="export-row">
+            <button class="btn-export" id="exportStrJson"><i class="fas fa-file-code"></i> JSON</button>
+            <button class="btn-export" id="exportStrTxt"><i class="fas fa-file-alt"></i> TXT</button>
+            <button class="btn-export" id="copyAllStr"><i class="fas fa-copy"></i> Copy All</button>
+          </div>
+        </div>
+        <div class="card" id="strPlaceholder">
+          <div style="text-align:center;padding:40px 20px;color:var(--dim)">
+            <i class="fas fa-font" style="font-size:30px;margin-bottom:12px;display:block;opacity:.2;color:var(--amber)"></i>
+            <div style="font-size:12px;font-family:var(--font)">Enter text and click<br><strong style="color:var(--amber)">Hash Text</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TAB: BATCH ═══════════ -->
+  <div class="tab-content" id="tab-batch">
+    <div class="main-grid">
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <h2><i class="fas fa-layer-group"></i> Batch File Processing</h2>
+            <span class="card-badge purple">BATCH</span>
+          </div>
+          <div class="batch-drop" id="batchDrop">
+            <input type="file" id="batchInput" multiple>
+            <i class="fas fa-folder-open upload-ico"></i>
+            <div class="upload-txt">Drop multiple files here</div>
+            <div class="upload-hint">Select many files at once to hash them all</div>
+          </div>
+          <div class="algo-row" style="margin-bottom:10px">
+            <span class="algo-row-label">Algorithms for batch</span>
+            <span id="batchAlgoSel" style="font-size:10.5px;color:var(--c);font-family:var(--font)">MD5 · SHA-256</span>
+          </div>
+          <div class="algo-pills" id="batchAlgoPills" style="margin-bottom:14px">
+            <button class="algo-pill active" data-balgo="md5">MD5</button>
+            <button class="algo-pill" data-balgo="sha1">SHA-1</button>
+            <button class="algo-pill active" data-balgo="sha256">SHA-256</button>
+            <button class="algo-pill" data-balgo="sha512">SHA-512</button>
+            <button class="algo-pill" data-balgo="sha3">SHA-3</button>
+            <button class="algo-pill" data-balgo="ripemd">RIPEMD-160</button>
+          </div>
+          <div class="batch-list" id="batchList"><div class="batch-empty">No files added yet</div></div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="btn-primary" id="batchRunBtn" disabled style="flex:2"><i class="fas fa-play"></i> Hash All Files</button>
+            <button class="btn-secondary" id="batchClearBtn" style="flex:1"><i class="fas fa-trash"></i> Clear</button>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" id="batchResultsCard" style="display:none">
+          <div class="card-header">
+            <h2><i class="fas fa-list-check"></i> Batch Results</h2>
+            <span class="card-badge purple">OUTPUT</span>
+          </div>
+          <div id="batchResults" style="max-height:420px;overflow-y:auto"></div>
+          <div class="export-row" style="margin-top:12px">
+            <button class="btn-export" id="exportBatchJson"><i class="fas fa-file-code"></i> JSON</button>
+            <button class="btn-export active-export" id="exportBatchCsv"><i class="fas fa-table"></i> CSV</button>
+            <button class="btn-export" id="exportBatchTxt"><i class="fas fa-file-alt"></i> TXT</button>
+          </div>
+        </div>
+        <div class="card" id="batchPlaceholder">
+          <div style="text-align:center;padding:40px 20px;color:var(--dim)">
+            <i class="fas fa-layer-group" style="font-size:30px;margin-bottom:12px;display:block;opacity:.2;color:var(--purple)"></i>
+            <div style="font-size:12px;font-family:var(--font)">Add files and click<br><strong style="color:var(--purple)">Hash All Files</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ TAB: COMPARE ═══════════ -->
+  <div class="tab-content" id="tab-compare">
+    <div class="main-grid">
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <h2><i class="fas fa-code-compare"></i> Hash Comparator</h2>
+            <span class="card-badge">TOOL</span>
+          </div>
+          <div class="compare-grid">
+            <div><div class="compare-label">Hash A</div><textarea class="input-field textarea-field" id="compareA" placeholder="Paste first hash…"></textarea></div>
+            <div><div class="compare-label">Hash B</div><textarea class="input-field textarea-field" id="compareB" placeholder="Paste second hash…"></textarea></div>
+          </div>
+          <button class="btn-primary" id="compareBtn"><i class="fas fa-equals"></i> Compare Hashes</button>
+          <div class="result-box" id="compareResult" style="margin-top:10px"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2><i class="fas fa-search"></i> Hash Identifier</h2>
+            <span class="card-badge">DETECT</span>
+          </div>
+          <div style="margin-bottom:10px">
+            <input type="text" class="input-field mono" id="identifyInput" placeholder="Paste a hash to auto-identify its algorithm…" autocomplete="off" spellcheck="false">
+          </div>
+          <button class="btn-primary" id="identifyBtn"><i class="fas fa-magnifying-glass"></i> Identify Hash</button>
+          <div class="result-box" id="identifyResult" style="margin-top:10px"></div>
+          <div id="identifyDetails" style="margin-top:8px;font-size:10px;color:var(--dim);font-family:var(--font);line-height:1.7"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <h2><i class="fas fa-chart-bar"></i> Hash Diff Visualizer</h2>
+            <span class="card-badge">VISUAL</span>
+          </div>
+          <div id="diffVisual" style="font-family:var(--font);font-size:11px;line-height:2;word-break:break-all;min-height:60px;padding:8px 0;color:var(--dim)">
+            Enter two hashes above to see character-level differences highlighted here.
+          </div>
+          <div style="margin-top:10px;display:flex;gap:12px;font-size:9.5px;font-family:var(--font);color:var(--muted)">
+            <span><span style="background:rgba(46,213,115,.2);color:var(--green);padding:0 4px;border-radius:2px">■</span> Match</span>
+            <span><span style="background:rgba(255,71,87,.2);color:var(--red);padding:0 4px;border-radius:2px">■</span> Differ</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2><i class="fas fa-info-circle"></i> Algorithm Reference</h2>
+            <span class="card-badge">INFO</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <div class="hash-card" style="margin:0;cursor:default">
+              <div class="hash-card-header"><div class="hash-name-row"><span class="hash-name">MD5</span><span style="font-size:9px;color:var(--amber);font-family:var(--font);margin-left:4px">128-bit · BROKEN</span></div></div>
+              <div style="font-size:10px;color:var(--muted);font-family:var(--font);line-height:1.6">Fast checksums, not secure against collision attacks. Use for non-security purposes only.</div>
+            </div>
+            <div class="hash-card" style="margin:0;cursor:default">
+              <div class="hash-card-header"><div class="hash-name-row"><span class="hash-name">SHA-1</span><span style="font-size:9px;color:var(--amber);font-family:var(--font);margin-left:4px">160-bit · DEPRECATED</span></div></div>
+              <div style="font-size:10px;color:var(--muted);font-family:var(--font);line-height:1.6">Collision attacks demonstrated. Deprecated by NIST in 2011. Still used in legacy systems.</div>
+            </div>
+            <div class="hash-card" style="margin:0;cursor:default">
+              <div class="hash-card-header"><div class="hash-name-row"><span class="hash-name">SHA-256</span><span style="font-size:9px;color:var(--green);font-family:var(--font);margin-left:4px">256-bit · RECOMMENDED</span></div></div>
+              <div style="font-size:10px;color:var(--muted);font-family:var(--font);line-height:1.6">SHA-2 family. Widely used in TLS, Bitcoin, file verification. No known practical attacks.</div>
+            </div>
+            <div class="hash-card" style="margin:0;cursor:default">
+              <div class="hash-card-header"><div class="hash-name-row"><span class="hash-name">SHA-512</span><span style="font-size:9px;color:var(--green);font-family:var(--font);margin-left:4px">512-bit · STRONGEST</span></div></div>
+              <div style="font-size:10px;color:var(--muted);font-family:var(--font);line-height:1.6">Maximum output length in SHA-2. Better for 64-bit platforms. Used in high-security applications.</div>
+            </div>
+            <div class="hash-card" style="margin:0;cursor:default">
+              <div class="hash-card-header"><div class="hash-name-row"><span class="hash-name">SHA-3</span><span style="font-size:9px;color:var(--c);font-family:var(--font);margin-left:4px">256-bit · MODERN</span></div></div>
+              <div style="font-size:10px;color:var(--muted);font-family:var(--font);line-height:1.6">Keccak algorithm. Completely different internal design from SHA-2. NIST standard since 2015.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">VERITAS v3.0 · Developed by <span>Prasad</span> · File Integrity System · All processing done 100% locally · No data transmitted</footer>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- QR MODAL -->
+<div class="modal-overlay" id="qrModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title"><i class="fas fa-qrcode"></i> QR Code for Hash</div>
+      <button class="modal-close" id="qrClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="qr-wrap"><div id="qrCanvas" style="display:flex;align-items:center;justify-content:center;min-height:200px"></div></div>
+    <div class="qr-info" id="qrInfo"></div>
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <button class="btn-secondary" style="flex:1" id="qrDownload"><i class="fas fa-download"></i> Download QR</button>
+      <button class="btn-secondary" style="flex:1" id="qrCopy"><i class="fas fa-copy"></i> Copy Hash</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   PARTICLE BACKGROUND
+══════════════════════════════════════ */
+(function(){
+  const cv=document.getElementById('particle-canvas'),ctx=cv.getContext('2d');
+  const mouse={x:-9999,y:-9999,r:130};
+  let pts=[],W,H;
+  const MD=100;
+  function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;init()}
+  function init(){const n=Math.min(Math.floor((W*H)/11000),100);pts=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*1.1,vy:(Math.random()-.5)*1.1,r:Math.random()*3.0+2.0}))}
+  window.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY});
+  window.addEventListener('mouseleave',()=>{mouse.x=mouse.y=-9999});
+  window.addEventListener('resize',resize,{passive:true});
+  resize();
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(const p of pts){
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=W;else if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H;else if(p.y>H)p.y=0;
+      const mx=mouse.x-p.x,my=mouse.y-p.y,md=Math.sqrt(mx*mx+my*my);
+      if(md<mouse.r&&md>0){const f=(mouse.r-md)/mouse.r;p.x-=(mx/md)*f*5;p.y-=(my/md)*f*5}
+      ctx.fillStyle='rgba(0,245,212,.7)';ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+    }
+    ctx.lineWidth=.55;
+    for(let a=0;a<pts.length;a++){for(let b=a+1;b<pts.length;b++){
+      const dx=pts[a].x-pts[b].x,dy=pts[a].y-pts[b].y;
+      if(Math.abs(dx)>MD||Math.abs(dy)>MD)continue;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<MD){ctx.strokeStyle=`rgba(0,245,212,${(1-d/MD)*1})`;ctx.beginPath();ctx.moveTo(pts[a].x,pts[a].y);ctx.lineTo(pts[b].x,pts[b].y);ctx.stroke()}
+    }}
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ══════════════════════════════════════
+   LIVE CLOCK
+══════════════════════════════════════ */
+(function(){
+  function tick(){
+    const n=new Date();
+    document.getElementById('clockDisplay').textContent=
+      String(n.getHours()).padStart(2,'0')+':'+
+      String(n.getMinutes()).padStart(2,'0')+':'+
+      String(n.getSeconds()).padStart(2,'0');
+  }
+  tick();setInterval(tick,1000);
+})();
+
+/* ══════════════════════════════════════
+   NAV TABS
+══════════════════════════════════════ */
+document.querySelectorAll('.nav-tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ══════════════════════════════════════
+   INTEGRITY CHECKER (File Hash)
+══════════════════════════════════════ */
+class IntegrityChecker{
+  constructor(){
+    this.file=null;this.hashes={};this.history=[];
+    this.stats={total:0,verified:0,modified:0,totalTime:0,totalBytes:0,strings:0};
+    this._allSel=false;
+    try{const s=JSON.parse(localStorage.getItem('veritas_v3')||'null');if(s){this.history=s.history||[];this.stats={...this.stats,...s.stats}}}catch(e){}
+    this._dom();this._events();this._updateStats();this._renderHistory();
+  }
+
+  _dom(){
+    const $=id=>document.getElementById(id);
+    this.uploadArea=$('uploadArea');this.fileInput=$('fileInput');
+    this.filePreview=$('filePreview');this.fileNameEl=$('fileName');
+    this.fileSizeEl=$('fileSize');this.fileTypeBadge=$('fileTypeBadge');
+    this.fileTypeIcon=$('fileTypeIcon');this.btnRemove=$('btnRemove');
+    this.md5Check=$('md5Check');this.sha1Check=$('sha1Check');
+    this.sha256Check=$('sha256Check');this.sha512Check=$('sha512Check');
+    this.sha3Check=$('sha3Check');this.ripemdCheck=$('ripemdCheck');
+    this.calculateBtn=$('calculateBtn');
+    this.progressWrap=$('progressWrap');this.progressFill=$('progressFill');
+    this.progressText=$('progressText');this.progressPct=$('progressPct');
+    this.resultsCard=$('resultsCard');this.resultsPlaceholder=$('resultsPlaceholder');
+    this.hashResultsEl=$('hashResults');
+    this.verifyInput=$('verifyHashInput');this.verifyBtn=$('verifyBtn');
+    this.verifyResult=$('verifyResult');this.verifyMessage=$('verifyMessage');
+    this.verifyHint=$('verifyHint');
+    this.historyList=$('historyList');this.clearHistoryBtn=$('clearHistoryBtn');
+    this.totalScansEl=$('totalScans');this.verifiedEl=$('verifiedCount');
+    this.modifiedEl=$('modifiedCount');this.lastScanEl=$('lastScan');this.avgSpeedEl=$('avgSpeed');
+    this.stringsEl=$('stringsCount');
+    this.exportTxtBtn=$('exportTxt');this.exportJsonBtn=$('exportJson');
+    this.exportCsvBtn=$('exportCsv');this.copyAllBtn=$('copyAll');
+    this.toggleAllBtn=$('toggleAllBtn');
+    this.toastContainer=$('toastContainer');
+    this.fileMetaRow=$('fileMetaRow');
+  }
+
+  _events(){
+    this.uploadArea.addEventListener('click',()=>this.fileInput.click());
+    this.fileInput.addEventListener('change',e=>{if(e.target.files[0])this._handleFile(e.target.files[0])});
+    this.uploadArea.addEventListener('dragover',e=>{e.preventDefault();this.uploadArea.classList.add('dragover')});
+    this.uploadArea.addEventListener('dragleave',()=>this.uploadArea.classList.remove('dragover'));
+    this.uploadArea.addEventListener('drop',e=>{e.preventDefault();this.uploadArea.classList.remove('dragover');if(e.dataTransfer.files[0])this._handleFile(e.dataTransfer.files[0])});
+    this.btnRemove.addEventListener('click',e=>{e.stopPropagation();this._clearFile()});
+    this.calculateBtn.addEventListener('click',()=>this._generateHashes());
+    this.verifyBtn.addEventListener('click',()=>this._verifyHash());
+    this.verifyInput.addEventListener('keydown',e=>{if(e.key==='Enter')this._verifyHash()});
+    this.clearHistoryBtn.addEventListener('click',()=>this._clearHistory());
+    document.getElementById('exportHistBtn').addEventListener('click',()=>this._exportHistory());
+    this.exportTxtBtn.addEventListener('click',()=>this._export('txt'));
+    this.exportJsonBtn.addEventListener('click',()=>this._export('json'));
+    this.exportCsvBtn.addEventListener('click',()=>this._export('csv'));
+    this.copyAllBtn.addEventListener('click',()=>this._copyAll());
+    this.toggleAllBtn.addEventListener('click',()=>this._toggleAll());
+    const cbs=[this.md5Check,this.sha1Check,this.sha256Check,this.sha512Check,this.sha3Check,this.ripemdCheck];
+    cbs.forEach(cb=>cb.addEventListener('change',()=>this._updateAlgoStyles()));
+    this._updateAlgoStyles();
+    document.getElementById('qrClose').addEventListener('click',()=>document.getElementById('qrModal').classList.remove('show'));
+    document.getElementById('qrModal').addEventListener('click',e=>{if(e.target===document.getElementById('qrModal'))document.getElementById('qrModal').classList.remove('show')});
+  }
+
+  _handleFile(f){
+    this.file=f;
+    this.fileNameEl.textContent=f.name;
+    this.fileSizeEl.innerHTML=this._fmtBytes(f.size);
+    const ext=(f.name.split('.').pop()||'bin').toLowerCase();
+    this.fileTypeBadge.textContent=ext.toUpperCase();
+    const im={pdf:'fa-file-pdf',doc:'fa-file-word',docx:'fa-file-word',xls:'fa-file-excel',xlsx:'fa-file-excel',zip:'fa-file-zipper',rar:'fa-file-zipper',jpg:'fa-file-image',jpeg:'fa-file-image',png:'fa-file-image',gif:'fa-file-image',mp4:'fa-file-video',mp3:'fa-file-audio',js:'fa-file-code',ts:'fa-file-code',py:'fa-file-code',html:'fa-file-code',css:'fa-file-code',json:'fa-file-code',txt:'fa-file-lines',csv:'fa-file-csv'};
+    this.fileTypeIcon.className=`fas ${im[ext]||'fa-file'}`;
+    // extra meta
+    this.fileMetaRow.innerHTML=`
+      <span class="file-meta-tag">Modified: ${new Date(f.lastModified).toLocaleDateString()}</span>
+      <span class="file-meta-tag">Type: ${f.type||'unknown'}</span>
+      <span class="file-meta-tag">Size: ${this._fmtBytes(f.size)}</span>`;
+    this.filePreview.classList.add('show');
+    this.calculateBtn.disabled=false;
+    this.hashes={};this.resultsCard.style.display='none';this.resultsPlaceholder.style.display='block';
+    this._resetVerify();
+    this._toast('File loaded — ready to hash','info');
+  }
+
+  _clearFile(){
+    this.file=null;this.fileInput.value='';
+    this.filePreview.classList.remove('show');
+    this.calculateBtn.disabled=true;
+    this.resultsCard.style.display='none';
+    this.resultsPlaceholder.style.display='block';
+    this.hashes={};this._resetVerify();
+  }
+
+  async _generateHashes(){
+    if(!this.file)return;
+    const sel=[
+      this.md5Check.checked&&'md5',
+      this.sha1Check.checked&&'sha1',
+      this.sha256Check.checked&&'sha256',
+      this.sha512Check.checked&&'sha512',
+      this.sha3Check.checked&&'sha3',
+      this.ripemdCheck.checked&&'ripemd'
+    ].filter(Boolean);
+    if(!sel.length){this._toast('Select at least one algorithm','warning');return}
+    this.calculateBtn.disabled=true;
+    this.calculateBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Computing…';
+    this.progressWrap.classList.add('show');
+    this.progressFill.style.width='0%';this.progressPct.textContent='0%';
+    this.progressText.textContent='Reading file…';
+    this.hashes={};this._resetVerify();
+    const t0=performance.now();
+    try{
+      const buffer=await this._readFile(this.file);
+      this.progressFill.style.width='20%';this.progressPct.textContent='20%';
+      await new Promise(r=>setTimeout(r,0));
+      const wa=CryptoJS.lib.WordArray.create(new Uint8Array(buffer));
+      this.progressFill.style.width='35%';this.progressPct.textContent='35%';
+      const step=60/sel.length;let pct=35;
+      for(const algo of sel){
+        this.progressText.textContent=`Computing ${algo.toUpperCase()}…`;
+        await new Promise(r=>setTimeout(r,0));
+        let v;
+        switch(algo){
+          case 'md5':v=CryptoJS.MD5(wa).toString();break;
+          case 'sha1':v=CryptoJS.SHA1(wa).toString();break;
+          case 'sha256':v=CryptoJS.SHA256(wa).toString();break;
+          case 'sha512':v=CryptoJS.SHA512(wa).toString();break;
+          case 'sha3':v=CryptoJS.SHA3(wa,{outputLength:256}).toString();break;
+          case 'ripemd':v=CryptoJS.RIPEMD160(wa).toString();break;
+        }
+        this.hashes[algo]=v;pct+=step;
+        this.progressFill.style.width=pct+'%';this.progressPct.textContent=Math.round(pct)+'%';
+      }
+      const elapsed=(performance.now()-t0)/1000;
+      const spd=(this.file.size/1024/1024/elapsed).toFixed(1);
+      this.progressFill.style.width='100%';this.progressPct.textContent='100%';
+      this.progressText.textContent=`Done in ${elapsed.toFixed(2)}s · ${spd} MB/s`;
+      this.stats.total++;this.stats.totalTime+=elapsed;this.stats.totalBytes+=this.file.size;
+      this._updateStats();this._displayHashes();
+      this.resultsCard.style.display='block';this.resultsPlaceholder.style.display='none';
+      this._addHistory(this.file.name,this.file.size,this.hashes,elapsed);
+      this._toast(`Hashes generated in ${elapsed.toFixed(2)}s`,'success');
+    }catch(err){console.error(err);this._toast('Error: '+err.message,'error')}
+    finally{
+      this.calculateBtn.disabled=false;
+      this.calculateBtn.innerHTML='<i class="fas fa-calculator"></i> Generate Hashes';
+      setTimeout(()=>this.progressWrap.classList.remove('show'),2800);
+    }
+  }
+
+  _readFile(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsArrayBuffer(f)})}
+
+  _displayHashes(){
+    const algoLabels={md5:'MD5',sha1:'SHA-1',sha256:'SHA-256',sha512:'SHA-512',sha3:'SHA-3',ripemd:'RIPEMD-160'};
+    const algoBits={md5:'128-bit',sha1:'160-bit',sha256:'256-bit',sha512:'512-bit',sha3:'256-bit',ripemd:'160-bit'};
+    let html='';
+    for(const[k,v] of Object.entries(this.hashes)){
+      html+=`<div class="hash-card" id="card_${k}">
+        <div class="hash-card-header">
+          <div class="hash-name-row">
+            <span class="hash-name">${algoLabels[k]||k.toUpperCase()}</span>
+            <span class="hash-len">${algoBits[k]||''} · ${v.length} chars</span>
+          </div>
+          <div class="hash-actions">
+            <button class="copy-btn" data-algo="${k}" data-action="copy"><i class="fas fa-copy"></i> Copy</button>
+            <button class="copy-btn qr-btn" data-algo="${k}" data-action="qr"><i class="fas fa-qrcode"></i> QR</button>
+          </div>
+        </div>
+        <div class="hash-value mono" id="hash_${k}">${v}</div>
+      </div>`;
+    }
+    this.hashResultsEl.innerHTML=html;
+    // Attach events via delegation — safe, no inline onclick, no value in attributes
+    this.hashResultsEl.querySelectorAll('[data-action]').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const algo=btn.dataset.algo;
+        const val=this.hashes[algo];
+        if(!val)return;
+        if(btn.dataset.action==='copy')this._copyHash(algo,val);
+        else if(btn.dataset.action==='qr')this._showQR(algo,val);
+      });
+    });
+  }
+
+  _copyHash(algo,val){
+    navigator.clipboard.writeText(val).then(()=>this._toast(`${algo.toUpperCase()} hash copied`,'success'));
+  }
+
+  _showQR(algo,val){
+    const modal=document.getElementById('qrModal');
+    modal.classList.add('show');
+    document.getElementById('qrInfo').textContent=val;
+    this._drawQR(val);
+    document.getElementById('qrDownload').onclick=()=>{
+      const img=document.querySelector('#qrCanvas img');
+      if(img){
+        const a=document.createElement('a');
+        a.download=`veritas_${algo}_qr.png`;
+        a.href=img.src;
+        a.click();
+      }else{this._toast('QR not ready yet','warning')}
+    };
+    document.getElementById('qrCopy').onclick=()=>{
+      navigator.clipboard.writeText(val).then(()=>this._toast('Hash copied','success'));
+    };
+  }
+
+  _drawQR(text){
+    const wrap=document.getElementById('qrCanvas');
+    wrap.innerHTML=''; // clear previous QR
+    try{
+      new QRCode(wrap,{text,width:200,height:200,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+    }catch(e){
+      wrap.style.cssText='font-family:monospace;font-size:9px;word-break:break-all;color:#333;padding:8px;background:#fff;border-radius:4px;max-width:200px;margin:0 auto';
+      wrap.textContent=text;
+      console.warn('QRCode generation failed:',e);
+    }
+  }
+
+  _verifyHash(){
+    const raw=this.verifyInput.value.trim();
+    if(!raw){this._toast('Paste a hash to verify','warning');return}
+    if(!Object.keys(this.hashes).length){this._toast('Generate hashes first','warning');return}
+    const input=raw.toLowerCase().replace(/\s/g,'');
+    let match=null;
+    for(const[algo,val] of Object.entries(this.hashes)){if(val.toLowerCase()===input){match=algo;break}}
+    this.verifyResult.classList.add('show');
+    // reset card highlights
+    for(const k of Object.keys(this.hashes)){const c=document.getElementById('card_'+k);if(c)c.classList.remove('matched','mismatched')}
+    if(match){
+      this.verifyResult.className='result-box show success';
+      this.verifyMessage.innerHTML=`<i class="fas fa-check-circle" style="margin-right:6px"></i> Integrity verified · Match found in <strong>${match.toUpperCase()}</strong>`;
+      this.verifyHint.textContent=`The ${match.toUpperCase()} hash matches. File is authentic and unmodified.`;
+      const card=document.getElementById('card_'+match);if(card)card.classList.add('matched');
+      if(this.history[0]?.status==='pending'){this.history[0].status='verified';this.stats.verified++;this._saveHistory();this._renderHistory();this._updateStats()}
+    }else{
+      const det=this._detectAlgo(input);
+      this.verifyResult.className='result-box show danger';
+      this.verifyMessage.innerHTML='<i class="fas fa-times-circle" style="margin-right:6px"></i> Verification FAILED · Hash mismatch';
+      this.verifyHint.textContent=det?`Detected as ${det} — no match found. File may be tampered.`:'Hash not recognized. Ensure correct algorithm.';
+      for(const k of Object.keys(this.hashes)){const c=document.getElementById('card_'+k);if(c)c.classList.add('mismatched')}
+      if(this.history[0]?.status==='pending'){this.history[0].status='modified';this.stats.modified++;this._saveHistory();this._renderHistory();this._updateStats()}
+    }
+  }
+
+  _detectAlgo(hex){
+    const l=hex.length;
+    if(l===32)return'MD5';if(l===40)return'SHA-1 or RIPEMD-160';
+    if(l===64)return'SHA-256 or SHA-3-256';if(l===128)return'SHA-512';return null;
+  }
+
+  _resetVerify(){
+    if(this.verifyResult)this.verifyResult.className='result-box';
+    if(this.verifyInput)this.verifyInput.value='';
+    if(this.verifyHint)this.verifyHint.textContent='';
+  }
+
+  _export(fmt){
+    if(!Object.keys(this.hashes).length){this._toast('No hashes to export','warning');return}
+    let content,mime,ext;
+    const ts=new Date().toISOString();
+    if(fmt==='json'){
+      content=JSON.stringify({tool:'VERITAS v3.0',generated:ts,file:{name:this.file?.name,size:this.file?.size,type:this.file?.type},hashes:this.hashes},null,2);
+      mime='application/json';ext='json';
+    }else if(fmt==='csv'){
+      content='Algorithm,Hash,Bits,Generated\n'+Object.entries(this.hashes).map(([k,v])=>{
+        const bits={md5:128,sha1:160,sha256:256,sha512:512,sha3:256,ripemd:160};
+        return `${k.toUpperCase()},"${v}",${bits[k]||''},${ts}`;
+      }).join('\n');
+      mime='text/csv';ext='csv';
+    }else{
+      const hr='─'.repeat(72);
+      content=['╔══════════════════════════════════════════════════════════════════════╗','║                  VERITAS v3.0 · File Integrity Report                ║','╚══════════════════════════════════════════════════════════════════════╝',`Generated : ${new Date().toLocaleString()}`,hr,`File Name : ${this.file?.name||'—'}`,`File Size : ${this._fmtBytes(this.file?.size||0)}`,`File Type : ${this.file?.type||'—'}`,hr,'CRYPTOGRAPHIC HASHES',hr,...Object.entries(this.hashes).map(([k,v])=>`${k.toUpperCase().padEnd(12)}: ${v}`),hr,'Generated by VERITAS File Integrity System · All processing local'].join('\n');
+      mime='text/plain';ext='txt';
+    }
+    const blob=new Blob([content],{type:mime});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download=`veritas_${(this.file?.name||'report').replace(/[^a-z0-9]/gi,'_')}.${ext}`;
+    a.click();URL.revokeObjectURL(a.href);
+    this._toast(`Exported as .${ext}`,'success');
+  }
+
+  _copyAll(){
+    if(!Object.keys(this.hashes).length){this._toast('No hashes to copy','warning');return}
+    const txt=Object.entries(this.hashes).map(([k,v])=>`${k.toUpperCase()}: ${v}`).join('\n');
+    navigator.clipboard.writeText(txt).then(()=>this._toast('All hashes copied','success'));
+  }
+
+  _updateAlgoStyles(){
+    const map=[['md5Check','algoMD5'],['sha1Check','algoSHA1'],['sha256Check','algoSHA256'],['sha512Check','algoSHA512'],['sha3Check','algoSHA3'],['ripemdCheck','algoRIPEMD']];
+    map.forEach(([cbId,lblId])=>{
+      const cb=document.getElementById(cbId),lb=document.getElementById(lblId);
+      if(lb)lb.classList.toggle('selected',cb?.checked);
+    });
+  }
+
+  _toggleAll(){
+    this._allSel=!this._allSel;
+    [this.md5Check,this.sha1Check,this.sha256Check,this.sha512Check,this.sha3Check,this.ripemdCheck].forEach(cb=>{cb.checked=this._allSel});
+    this.toggleAllBtn.textContent=this._allSel?'Deselect All':'Select All';
+    this._updateAlgoStyles();
+  }
+
+  _addHistory(name,size,hashes,elapsed){
+    const primary=hashes.sha256||hashes.sha512||hashes.md5||hashes.sha1||'';
+    const algo=hashes.sha256?'SHA-256':hashes.sha512?'SHA-512':hashes.md5?'MD5':'SHA-1';
+    this.history.unshift({name,size,hashes,primary,short:primary.slice(0,18)+'…',algo,time:new Date().toLocaleTimeString(),date:new Date().toLocaleDateString(),elapsed:elapsed.toFixed(2),status:'pending'});
+    if(this.history.length>25)this.history.pop();
+    this._saveHistory();this._renderHistory();
+  }
+
+  _renderHistory(){
+    if(!this.history.length){this.historyList.innerHTML='<div class="history-empty"><i class="fas fa-inbox"></i>No scans yet</div>';return}
+    this.historyList.innerHTML=this.history.map((item,i)=>`
+      <div class="history-item" onclick="window._chk._restoreFromHistory(${i})" title="Click to restore hashes">
+        <div class="history-ico"><i class="fas fa-file-code"></i></div>
+        <div class="history-info">
+          <div class="history-filename" title="${item.name}">${item.name}</div>
+          <div class="history-meta">${item.date} ${item.time} · ${this._fmtBytes(item.size)} · ${item.elapsed}s · ${item.algo}</div>
+        </div>
+        <div class="history-right">
+          <span class="history-status ${item.status}">${item.status.toUpperCase()}</span>
+          <span class="history-hash">${item.short}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  _restoreFromHistory(idx){
+    const item=this.history[idx];if(!item)return;
+    this.hashes=item.hashes;
+    this._displayHashes();
+    this.resultsCard.style.display='block';this.resultsPlaceholder.style.display='none';
+    this._toast(`Restored: ${item.name}`,'info');
+    // switch to file tab
+    document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    document.querySelector('[data-tab="file"]').classList.add('active');
+    document.getElementById('tab-file').classList.add('active');
+  }
+
+  _exportHistory(){
+    if(!this.history.length){this._toast('No history to export','warning');return}
+    const content=JSON.stringify({tool:'VERITAS v3.0',exported:new Date().toISOString(),history:this.history},null,2);
+    const blob=new Blob([content],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download='veritas_history.json';a.click();URL.revokeObjectURL(a.href);
+    this._toast('History exported','success');
+  }
+
+  _clearHistory(){
+    this.history=[];this.stats={total:0,verified:0,modified:0,totalTime:0,totalBytes:0,strings:this.stats.strings||0};
+    localStorage.removeItem('veritas_v3');this._renderHistory();this._updateStats();this._toast('History cleared','info');
+  }
+
+  _saveHistory(){try{localStorage.setItem('veritas_v3',JSON.stringify({history:this.history,stats:this.stats}))}catch(e){}}
+
+  _updateStats(){
+    this.totalScansEl.textContent=this.stats.total;
+    this.verifiedEl.textContent=this.stats.verified;
+    this.modifiedEl.textContent=this.stats.modified;
+    this.stringsEl.textContent=this.stats.strings||0;
+    const now=new Date();
+    this.lastScanEl.textContent=this.stats.total?`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`:'--:--:--';
+    const avg=this.stats.totalTime>0?(this.stats.totalBytes/1024/1024/this.stats.totalTime).toFixed(1):'—';
+    this.avgSpeedEl.textContent=avg;
+  }
+
+  _fmtBytes(b){if(!b)return'0 B';const k=1024,s=['B','KB','MB','GB'],i=Math.floor(Math.log(b)/Math.log(k));return`${(b/Math.pow(k,i)).toFixed(2)} ${s[i]}`}
+
+  _toast(msg,type='info'){
+    const icons={success:'fa-check-circle',error:'fa-exclamation-circle',warning:'fa-triangle-exclamation',info:'fa-circle-info'};
+    const t=document.createElement('div');t.className=`toast ${type}`;
+    t.innerHTML=`<i class="fas ${icons[type]||icons.info}"></i><span>${msg}</span>`;
+    this.toastContainer.appendChild(t);
+    setTimeout(()=>{t.style.cssText='opacity:0;transform:translateX(20px);transition:all .28s';setTimeout(()=>t.remove(),300)},3200);
+  }
+}
+
+/* ══════════════════════════════════════
+   TEXT / STRING HASH
+══════════════════════════════════════ */
+(function(){
+  const inp=document.getElementById('stringInput');
+  const charCount=document.getElementById('charCount');
+  let encMode='hex';
+  let activeAlgos=new Set(['md5','sha1','sha256']);
+
+  inp.addEventListener('input',()=>{charCount.textContent=inp.value.length});
+
+  // encoding buttons
+  document.querySelectorAll('.enc-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.enc-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');encMode=btn.dataset.enc;
+    });
+  });
+
+  // algo pills
+  document.querySelectorAll('#textAlgoPills .algo-pill').forEach(pill=>{
+    pill.addEventListener('click',()=>{
+      const a=pill.dataset.algo;
+      if(activeAlgos.has(a)){if(activeAlgos.size>1){activeAlgos.delete(a);pill.classList.remove('active')}}
+      else{activeAlgos.add(a);pill.classList.add('active')}
+    });
+  });
+
+  function encodeVal(wordArray){
+    if(encMode==='base64')return CryptoJS.enc.Base64.stringify(wordArray);
+    const hex=wordArray.toString();
+    if(encMode==='upper')return hex.toUpperCase();
+    return hex;
+  }
+
+  document.getElementById('hashStringBtn').addEventListener('click',()=>{
+    const txt=inp.value;
+    if(!txt.trim()){window._chk?._toast('Enter some text first','warning');return}
+    if(!activeAlgos.size){window._chk?._toast('Select at least one algorithm','warning');return}
+    const map={md5:t=>CryptoJS.MD5(t),sha1:t=>CryptoJS.SHA1(t),sha256:t=>CryptoJS.SHA256(t),sha512:t=>CryptoJS.SHA512(t),sha3:t=>CryptoJS.SHA3(t,{outputLength:256}),ripemd:t=>CryptoJS.RIPEMD160(t)};
+    const labels={md5:'MD5',sha1:'SHA-1',sha256:'SHA-256',sha512:'SHA-512',sha3:'SHA-3',ripemd:'RIPEMD-160'};
+    const bits={md5:'128-bit',sha1:'160-bit',sha256:'256-bit',sha512:'512-bit',sha3:'256-bit',ripemd:'160-bit'};
+    let html='';const results={};
+    for(const a of activeAlgos){
+      const v=encodeVal(map[a](txt));results[a]=v;
+      html+=`<div class="str-result-card">
+        <div class="str-result-header">
+          <span class="str-result-name">${labels[a]||a.toUpperCase()}</span>
+          <div style="display:flex;gap:5px;align-items:center">
+            <span style="font-size:9px;color:var(--dim);font-family:var(--font)">${bits[a]} · ${v.length} chars</span>
+            <button class="copy-btn" onclick="navigator.clipboard.writeText('${v}').then(()=>window._chk?._toast('Copied','success'))"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+        </div>
+        <div class="str-hash-val mono">${v}</div>
+      </div>`;
+    }
+    document.getElementById('strHashResults').innerHTML=html;
+    document.getElementById('strResultsCard').style.display='block';
+    document.getElementById('strPlaceholder').style.display='none';
+    if(window._chk){window._chk.stats.strings=(window._chk.stats.strings||0)+1;window._chk._updateStats();window._chk._saveHistory();window._chk._toast('Text hashed','success')}
+
+    // export handlers
+    document.getElementById('exportStrJson').onclick=()=>{
+      const c=JSON.stringify({tool:'VERITAS v3.0',input:txt,encoding:encMode,generated:new Date().toISOString(),hashes:results},null,2);
+      const blob=new Blob([c],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='veritas_text_hash.json';a.click();URL.revokeObjectURL(a.href);
+    };
+    document.getElementById('exportStrTxt').onclick=()=>{
+      const c=Object.entries(results).map(([k,v])=>`${(labels[k]||k.toUpperCase()).padEnd(12)}: ${v}`).join('\n');
+      const blob=new Blob([c],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='veritas_text_hash.txt';a.click();URL.revokeObjectURL(a.href);
+    };
+    document.getElementById('copyAllStr').onclick=()=>{
+      const t=Object.entries(results).map(([k,v])=>`${labels[k]||k.toUpperCase()}: ${v}`).join('\n');
+      navigator.clipboard.writeText(t).then(()=>window._chk?._toast('All hashes copied','success'));
+    };
+  });
+})();
+
+/* ══════════════════════════════════════
+   BATCH HASHING
+══════════════════════════════════════ */
+(function(){
+  const batchDrop=document.getElementById('batchDrop');
+  const batchInput=document.getElementById('batchInput');
+  const batchList=document.getElementById('batchList');
+  const batchRunBtn=document.getElementById('batchRunBtn');
+  const batchClearBtn=document.getElementById('batchClearBtn');
+  let batchFiles=[];
+  let batchAlgos=new Set(['md5','sha256']);
+
+  // batch algo pills
+  document.querySelectorAll('#batchAlgoPills .algo-pill').forEach(pill=>{
+    pill.addEventListener('click',()=>{
+      const a=pill.dataset.balgo;
+      if(batchAlgos.has(a)){if(batchAlgos.size>1){batchAlgos.delete(a);pill.classList.remove('active')}}
+      else{batchAlgos.add(a);pill.classList.add('active')}
+      document.getElementById('batchAlgoSel').textContent=[...batchAlgos].map(a=>a.toUpperCase()).join(' · ');
+    });
+  });
+
+  function addFiles(files){
+    for(const f of files){
+      if(!batchFiles.find(x=>x.name===f.name&&x.size===f.size))batchFiles.push(f);
+    }
+    renderBatchList();
+    batchRunBtn.disabled=!batchFiles.length;
+  }
+
+  function renderBatchList(){
+    if(!batchFiles.length){batchList.innerHTML='<div class="batch-empty">No files added yet</div>';return}
+    batchList.innerHTML=batchFiles.map((f,i)=>{
+      const ext=(f.name.split('.').pop()||'').toLowerCase();
+      const ico={pdf:'fa-file-pdf',jpg:'fa-file-image',jpeg:'fa-file-image',png:'fa-file-image',mp4:'fa-file-video',mp3:'fa-file-audio',js:'fa-file-code',py:'fa-file-code',txt:'fa-file-lines',zip:'fa-file-zipper'}[ext]||'fa-file';
+      return `<div class="batch-item" id="bi_${i}">
+        <div class="batch-item-ico"><i class="fas ${ico}"></i></div>
+        <span class="batch-item-name" title="${f.name}">${f.name}</span>
+        <span class="batch-item-size">${fmtB(f.size)}</span>
+        <span class="batch-item-status pending" id="bs_${i}">PENDING</span>
+        <button class="batch-item-remove" onclick="removeBatchFile(${i})"><i class="fas fa-times"></i></button>
+      </div>`;
+    }).join('');
+  }
+
+  window.removeBatchFile=function(i){batchFiles.splice(i,1);renderBatchList();batchRunBtn.disabled=!batchFiles.length};
+
+  batchDrop.addEventListener('click',()=>batchInput.click());
+  batchInput.addEventListener('change',e=>{if(e.target.files)addFiles([...e.target.files])});
+  batchDrop.addEventListener('dragover',e=>{e.preventDefault();batchDrop.classList.add('dragover')});
+  batchDrop.addEventListener('dragleave',()=>batchDrop.classList.remove('dragover'));
+  batchDrop.addEventListener('drop',e=>{e.preventDefault();batchDrop.classList.remove('dragover');if(e.dataTransfer.files)addFiles([...e.dataTransfer.files])});
+  batchClearBtn.addEventListener('click',()=>{batchFiles=[];renderBatchList();batchRunBtn.disabled=true;document.getElementById('batchResultsCard').style.display='none';document.getElementById('batchPlaceholder').style.display='block'});
+
+  function fmtB(b){if(!b)return'0 B';const k=1024,s=['B','KB','MB','GB'],i=Math.floor(Math.log(b)/Math.log(k));return`${(b/Math.pow(k,i)).toFixed(1)} ${s[i]}`}
+  function readBuf(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error);r.readAsArrayBuffer(f)})}
+
+  batchRunBtn.addEventListener('click',async()=>{
+    if(!batchFiles.length)return;
+    batchRunBtn.disabled=true;batchRunBtn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Processing…';
+    const allResults=[];
+    for(let i=0;i<batchFiles.length;i++){
+      const f=batchFiles[i];const statusEl=document.getElementById('bs_'+i);
+      if(statusEl){statusEl.textContent='HASHING';statusEl.className='batch-item-status pending'}
+      try{
+        const buffer=await readBuf(f);
+        const wa=CryptoJS.lib.WordArray.create(new Uint8Array(buffer));
+        const hashes={};
+        for(const a of batchAlgos){
+          switch(a){
+            case 'md5':hashes[a]=CryptoJS.MD5(wa).toString();break;
+            case 'sha1':hashes[a]=CryptoJS.SHA1(wa).toString();break;
+            case 'sha256':hashes[a]=CryptoJS.SHA256(wa).toString();break;
+            case 'sha512':hashes[a]=CryptoJS.SHA512(wa).toString();break;
+            case 'sha3':hashes[a]=CryptoJS.SHA3(wa,{outputLength:256}).toString();break;
+            case 'ripemd':hashes[a]=CryptoJS.RIPEMD160(wa).toString();break;
+          }
+        }
+        allResults.push({name:f.name,size:fmtB(f.size),hashes});
+        if(statusEl){statusEl.textContent='DONE';statusEl.className='batch-item-status done'}
+      }catch(e){
+        allResults.push({name:f.name,size:fmtB(f.size),error:e.message});
+        if(statusEl){statusEl.textContent='ERROR';statusEl.className='batch-item-status error'}
+      }
+      await new Promise(r=>setTimeout(r,0));
+    }
+    // Render results
+    let html='';
+    for(const r of allResults){
+      html+=`<div class="str-result-card" style="margin-bottom:10px">
+        <div class="str-result-header" style="margin-bottom:6px">
+          <span class="str-result-name">${r.name}</span>
+          <span style="font-size:9.5px;color:var(--dim);font-family:var(--font)">${r.size}</span>
+        </div>`;
+      if(r.error){html+=`<div style="font-size:10.5px;color:var(--red);font-family:var(--font)">Error: ${r.error}</div>`;}
+      else{
+        for(const[a,v] of Object.entries(r.hashes)){
+          html+=`<div style="margin-bottom:5px">
+            <div style="font-size:9px;color:var(--c);font-family:var(--font);font-weight:700;margin-bottom:3px;letter-spacing:.5px">${a.toUpperCase()}</div>
+            <div class="hash-value mono" style="font-size:10px">${v}</div>
+          </div>`;
+        }
+      }
+      html+='</div>';
+    }
+    document.getElementById('batchResults').innerHTML=html;
+    document.getElementById('batchResultsCard').style.display='block';
+    document.getElementById('batchPlaceholder').style.display='none';
+    batchRunBtn.disabled=false;batchRunBtn.innerHTML='<i class="fas fa-play"></i> Hash All Files';
+    window._chk?._toast(`Batch complete: ${allResults.length} files`,'success');
+
+    // export handlers
+    document.getElementById('exportBatchJson').onclick=()=>{
+      const c=JSON.stringify({tool:'VERITAS v3.0',generated:new Date().toISOString(),results:allResults},null,2);
+      const blob=new Blob([c],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='veritas_batch.json';a.click();URL.revokeObjectURL(a.href);
+    };
+    document.getElementById('exportBatchCsv').onclick=()=>{
+      let rows=['Filename,Size,'+[...batchAlgos].map(a=>a.toUpperCase()).join(',')];
+      for(const r of allResults){if(!r.error)rows.push(`"${r.name}",${r.size},`+[...batchAlgos].map(a=>r.hashes[a]||'').join(','))}
+      const blob=new Blob([rows.join('\n')],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='veritas_batch.csv';a.click();URL.revokeObjectURL(a.href);
+    };
+    document.getElementById('exportBatchTxt').onclick=()=>{
+      const c=allResults.map(r=>`${r.name} (${r.size})\n`+(r.error?`  ERROR: ${r.error}`:Object.entries(r.hashes).map(([a,v])=>`  ${a.toUpperCase().padEnd(10)}: ${v}`).join('\n'))).join('\n\n');
+      const blob=new Blob([c],{type:'text/plain'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='veritas_batch.txt';a.click();URL.revokeObjectURL(a.href);
+    };
+  });
+})();
+
+/* ══════════════════════════════════════
+   COMPARE & IDENTIFY TAB
+══════════════════════════════════════ */
+document.getElementById('compareBtn').addEventListener('click',()=>{
+  const a=document.getElementById('compareA').value.trim().toLowerCase().replace(/\s/g,'');
+  const b=document.getElementById('compareB').value.trim().toLowerCase().replace(/\s/g,'');
+  const res=document.getElementById('compareResult');
+  const diffEl=document.getElementById('diffVisual');
+  if(!a||!b){window._chk?._toast('Enter both hashes','warning');return}
+  res.classList.add('show');
+  if(a===b){
+    res.className='result-box show match';
+    res.innerHTML='<i class="fas fa-check-circle" style="margin-right:6px"></i> MATCH · Both hashes are identical';
+    diffEl.innerHTML=a.split('').map(c=>`<span style="background:rgba(46,213,115,.15);color:var(--green)">${c}</span>`).join('');
+  }else{
+    const min=Math.min(a.length,b.length);let diff=0;
+    for(let i=0;i<min;i++)if(a[i]!==b[i])diff++;
+    diff+=Math.abs(a.length-b.length);
+    const pct=((1-diff/Math.max(a.length,b.length))*100).toFixed(1);
+    res.className='result-box show nomatch';
+    res.innerHTML=`<i class="fas fa-times-circle" style="margin-right:6px"></i> MISMATCH · ${diff} chars differ (${pct}% similar)`;
+    // diff visual
+    let dHtml='<div style="margin-bottom:6px;font-size:9.5px;color:var(--muted)">Hash A:</div>';
+    dHtml+=a.split('').map((c,i)=>{const match=b[i]===c;return`<span style="background:${match?'rgba(46,213,115,.12)':'rgba(255,71,87,.2)'};color:${match?'var(--green)':'var(--red)'};border-radius:1px">${c}</span>`}).join('');
+    dHtml+='<div style="margin:8px 0 4px;font-size:9.5px;color:var(--muted)">Hash B:</div>';
+    dHtml+=b.split('').map((c,i)=>{const match=a[i]===c;return`<span style="background:${match?'rgba(46,213,115,.12)':'rgba(255,71,87,.2)'};color:${match?'var(--green)':'var(--red)'};border-radius:1px">${c}</span>`}).join('');
+    diffEl.innerHTML=dHtml;
+  }
+});
+
+// Enter key support for compare textareas (Ctrl+Enter)
+document.getElementById('compareA').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.ctrlKey)document.getElementById('compareBtn').click()});
+document.getElementById('compareB').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.ctrlKey)document.getElementById('compareBtn').click()});
+
+document.getElementById('identifyBtn').addEventListener('click',()=>{
+  const val=document.getElementById('identifyInput').value.trim().replace(/\s/g,'').toLowerCase();
+  const res=document.getElementById('identifyResult');
+  const det=document.getElementById('identifyDetails');
+  if(!val){window._chk?._toast('Paste a hash to identify','warning');return}
+  res.classList.add('show');
+  const info={
+    32:{name:'MD5',bits:128,security:'⚠ BROKEN — collision attacks exist',use:'Checksums, non-security use only'},
+    40:{name:'SHA-1 or RIPEMD-160',bits:'160',security:'⚠ DEPRECATED — SHA-1 collisions demonstrated',use:'Legacy systems, avoid for new applications'},
+    56:{name:'SHA-224',bits:224,security:'✓ Adequate',use:'SHA-2 truncated variant'},
+    64:{name:'SHA-256 or SHA-3-256',bits:256,security:'✓ SECURE — no known practical attacks',use:'TLS, file verification, Bitcoin, recommended'},
+    96:{name:'SHA-384',bits:384,security:'✓ SECURE',use:'High security SHA-2 variant'},
+    128:{name:'SHA-512',bits:512,security:'✓ SECURE — maximum SHA-2 output',use:'High security applications, 64-bit optimized'},
+  };
+  const match=info[val.length];
+  const isHex=/^[0-9a-f]+$/.test(val);
+  if(!isHex){res.className='result-box show danger';res.innerHTML='<i class="fas fa-exclamation-triangle" style="margin-right:6px"></i> Not valid hex — may be Base64 or other encoding';det.textContent='';return}
+  if(match){
+    res.className='result-box show success';
+    res.innerHTML=`<i class="fas fa-check-circle" style="margin-right:6px"></i> Detected: <strong style="margin-left:4px">${match.name}</strong>`;
+    det.innerHTML=`Length: ${val.length} hex chars · ${match.bits}-bit output<br>Security: ${match.security}<br>Common use: ${match.use}`;
+  }else{
+    res.className='result-box show danger';
+    res.innerHTML=`<i class="fas fa-question-circle" style="margin-right:6px"></i> Unknown hash type (${val.length} chars)`;
+    det.textContent='Length does not match any common algorithm. May be truncated or a custom hash.';
+  }
+});
+
+// FIX 13: Enter key on identifyInput
+document.getElementById('identifyInput').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('identifyBtn').click()});
+
+/* ══════════════════════════════════════
+   INIT
+══════════════════════════════════════ */
+// Script is at end of <body> so DOM is already ready — no DOMContentLoaded needed
+window._chk=new IntegrityChecker();
+
+</script>
+</body>
+</html>
