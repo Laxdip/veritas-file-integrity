@@ -294,14 +294,17 @@ body::before{content:'';position:fixed;inset:0;z-index:0;
   .stats-grid{grid-template-columns:repeat(3,1fr)}
 }
 @media(max-width:640px){
-  .nav-right{gap:8px}
-  .nav-status span{display:none}  /* Hides "SECURE" text on mobile */
-  .status-dot{width:6px;height:6px}  /* Keeps the dot only */
+  .nav-tabs{display:flex !important; flex-wrap:wrap; gap:2px}
+  .nav-tab{padding:4px 8px; font-size:9px}
   .stats-grid{grid-template-columns:repeat(2,1fr)}
   .nav-tabs{display:none}
   .compare-grid{grid-template-columns:1fr}
   .export-row{flex-wrap:wrap}
   .algo-grid{grid-template-columns:1fr}
+  .nav-status span{display:none}
+  .nav-status .status-dot{margin-right:0}
+  .nav-right{gap:4px}
+  .clock{font-size:9px}
   
   /* Logo fixes */
   .logo-txt{font-size:12px}
