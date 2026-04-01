@@ -294,9 +294,9 @@ body::before{content:'';position:fixed;inset:0;z-index:0;
   .stats-grid{grid-template-columns:repeat(3,1fr)}
 }
 @media(max-width:640px){
-  .nav-status span{font-size:9px}
-  .nav-right{gap:6px}
-  .clock{font-size:9px}
+  .nav-right{gap:8px}
+  .nav-status span{display:none}  /* Hides "SECURE" text on mobile */
+  .status-dot{width:6px;height:6px}  /* Keeps the dot only */
   .stats-grid{grid-template-columns:repeat(2,1fr)}
   .nav-tabs{display:none}
   .compare-grid{grid-template-columns:1fr}
