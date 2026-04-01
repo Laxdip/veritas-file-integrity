@@ -293,31 +293,40 @@ body::before{content:'';position:fixed;inset:0;z-index:0;
   .main-grid{grid-template-columns:1fr}
   .stats-grid{grid-template-columns:repeat(3,1fr)}
 }
-@media(max-width:640px){
-  .nav-tabs{display:flex !important; flex-wrap:wrap; gap:2px}
-  .nav-tab{padding:4px 8px; font-size:9px}
+@media(max-width:768px){
   .stats-grid{grid-template-columns:repeat(2,1fr)}
-  .nav-tabs{display:none}
   .compare-grid{grid-template-columns:1fr}
   .export-row{flex-wrap:wrap}
   .algo-grid{grid-template-columns:1fr}
-  .nav-status span{display:none}
-  .nav-status .status-dot{margin-right:0}
-  .nav-right{gap:4px}
-  .clock{font-size:9px}
   
-  /* Logo fixes */
-  .logo-txt{font-size:12px}
-  .logo-badge{font-size:7px;padding:1px 4px}
-  .logo-ico{width:28px;height:28px;font-size:12px}
-  .hero-title{font-size:16px;flex-wrap:wrap;gap:5px}
-  .nav{gap:8px}
+  /* Header - stack logo and nav */
+  .nav{flex-wrap:wrap; justify-content:center}
+  .logo{margin-right:auto}
+  .nav-right{margin-left:auto}
+  
+  /* Tabs - horizontal scroll for small screens */
+  .nav-tabs{display:flex; overflow-x:auto; white-space:nowrap; gap:4px; padding:4px; -webkit-overflow-scrolling:touch}
+  .nav-tab{flex-shrink:0; padding:6px 12px; font-size:10px}
+  
+  /* Logo smaller */
+  .logo-txt{font-size:14px}
+  .logo-badge{font-size:8px; padding:1px 5px}
+  .logo-ico{width:32px;height:32px;font-size:14px}
+  .hero-title{font-size:18px; flex-wrap:wrap}
+  
+  /* Hide SECURE text on mobile */
+  .nav-status span{display:none}
+  .nav-right{gap:8px}
+  .clock{font-size:10px}
 }
 @media(max-width:480px){
   .stats-grid{grid-template-columns:1fr}
-  .hero-title{font-size:14px}
+  .hero-title{font-size:16px}
   .card{padding:16px}
   .stat-value{font-size:20px}
+  .nav-tab{padding:4px 10px; font-size:9px}
+  .logo-txt{font-size:12px}
+  .logo-badge{font-size:7px}
 }
 </style>
 </head>
