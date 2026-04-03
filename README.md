@@ -20,19 +20,15 @@ A powerful client side cryptographic hash generator for file integrity verificat
 
 <div align="center">
   
-<img src="screenshots/File%20hash.png" width="320" /> &nbsp;&nbsp;&nbsp;&nbsp;
-<img src="screenshots/Text%20hash.png" width="320" />
-<br>
-<kbd>File Hash Tab</kbd> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<kbd>Text Hash Tab</kbd>
+| | |
+|:-:|:-:|
+| <img src="screenshots/File%20hash.png" width="350"> | <img src="screenshots/Text%20hash.png" width="350"> |
+| <kbd>📁 File Hash Tab</kbd> | <kbd>📝 Text Hash Tab</kbd> |
 
-<br><br>
-
-<img src="screenshots/Batch.png" width="320" /> &nbsp;&nbsp;&nbsp;&nbsp;
-<img src="screenshots/Hash%20compare%20and%20identify.png" width="320" />
-<br>
-<kbd>Batch Processing</kbd> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<kbd>Hash Compare & Identify</kbd>
+| | |
+|:-:|:-:|
+| <img src="screenshots/Batch.png" width="350"> | <img src="screenshots/Hash%20compare%20and%20identify.png" width="350"> |
+| <kbd>📦 Batch Processing</kbd> | <kbd>🔍 Hash Compare & Identify</kbd> |
 
 </div>
 
