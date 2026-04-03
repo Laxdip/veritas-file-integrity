@@ -66,7 +66,7 @@ Option 3: Download & Use Offline
 
 ## Background Animation
 
-![bg.gif](screenshots/bg.gif)
+<img src="screenshots/bg.gif" width="400">
 
 Get the effect → [`background.html`](background.html)
 
