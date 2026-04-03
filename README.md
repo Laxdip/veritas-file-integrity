@@ -16,6 +16,22 @@ A powerful client side cryptographic hash generator for file integrity verificat
 ## Live Demo
 [https://Laxdip.github.io/veritas-file-integrity/](https://Laxdip.github.io/veritas-file-integrity/)
 
+## 📸 Screenshots
+
+<div align="center">
+  
+| | |
+|:-:|:-:|
+| <a href="screenshots/File%20hash.png"><img src="screenshots/File%20hash.png" width="260"></a> | <a href="screenshots/Text%20hash.png"><img src="screenshots/Text%20hash.png" width="260"></a> |
+| **File Hash Tab** | **Text Hash Tab** |
+
+| <a href="screenshots/Batch.png"><img src="screenshots/Batch.png" width="260"></a> | <a href="screenshots/Hash%20compare%20and%20identify.png"><img src="screenshots/Hash%20compare%20and%20identify.png" width="260"></a> |
+| **Batch Processing** | **Hash Compare & Identify** |
+
+</div>
+
+*Click any screenshot to view full size*
+
 ## Installation
 No installation required! This is a web-based tool that runs entirely in your browser.
 ```
