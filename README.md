@@ -22,7 +22,7 @@ A powerful client side cryptographic hash generator for file integrity verificat
   
 | | |
 |:-:|:-:|
-| <img src="screenshots/File%20hash.png" width="350"> | <img src="screenshots/Text%20hash.png" width="350"> |
+| <img src="screenshots/File%20hash.png" width="400"> | <img src="screenshots/Text%20hash.png" width="400"> |
 | <kbd>📁 File Hash Tab</kbd> | <kbd>📝 Text Hash Tab</kbd> |
 
 | | |
