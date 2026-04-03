@@ -20,15 +20,19 @@ A powerful client side cryptographic hash generator for file integrity verificat
 
 <div align="center">
   
-| | |
-|:---:|:---:|
-| <img src="screenshots/File%20hash.png" width="270"> | <img src="screenshots/Text%20hash.png" width="270"> |
-| **📁 File Hash Tab** | **📝 Text Hash Tab** |
+<img src="screenshots/File%20hash.png" width="260" /> &nbsp;&nbsp;&nbsp;&nbsp;
+<img src="screenshots/Text%20hash.png" width="260" />
+<br>
+<kbd>File Hash Tab</kbd> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<kbd>Text Hash Tab</kbd>
 
-| | |
-|:---:|:---:|
-| <img src="screenshots/Batch.png" width="270"> | <img src="screenshots/Hash%20compare%20and%20identify.png" width="270"> |
-| **📦 Batch Processing** | **🔍 Hash Compare & Identify** |
+<br><br>
+
+<img src="screenshots/Batch.png" width="260" /> &nbsp;&nbsp;&nbsp;&nbsp;
+<img src="screenshots/Hash%20compare%20and%20identify.png" width="260" />
+<br>
+<kbd>Batch Processing</kbd> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<kbd>Hash Compare & Identify Tool</kbd>
 
 </div>
 
