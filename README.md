@@ -68,7 +68,7 @@ Option 3: Download & Use Offline
 
 <img src="screenshots/bg.gif" width="400">
 
-Get the effect → [`background.html`](background.html)
+Get the effect → [`Background.html`](Background.html)
 
 ## License
 MIT
