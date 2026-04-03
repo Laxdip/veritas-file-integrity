@@ -64,6 +64,12 @@ Option 3: Download & Use Offline
 4. Verify integrity against known hashes
 5. Export or share results via QR
 
+## Background Animation
+
+![bg.gif](screenshots/bg.gif)
+
+Get the effect → [`background.html`](background.html)
+
 ## License
 MIT
 
