@@ -19,11 +19,13 @@ A powerful client side cryptographic hash generator for file integrity verificat
 ## 📸 Screenshots
 
 <div align="center">
-  
+
+| | |  
 |:-:|:-:|
 | <img src="screenshots/File%20hash.png" width="400"> | <img src="screenshots/Text%20hash.png" width="400"> |
 | <kbd>📁 File Hash Tab</kbd> | <kbd>📝 Text Hash Tab</kbd> |
 
+| | |
 |:-:|:-:|
 | <img src="screenshots/Batch.png" width="350"> | <img src="screenshots/Hash%20compare%20and%20identify.png" width="350"> |
 | <kbd>📦 Batch Processing</kbd> | <kbd>🔍 Hash Compare & Identify</kbd> |
