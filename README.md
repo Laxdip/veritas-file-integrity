@@ -19,34 +19,32 @@ A powerful client side cryptographic hash generator for file integrity verificat
 ## 📸 Screenshots
 
 <div align="center">
-  <table border="0" cellpadding="20">
-    <tr>
-      <td align="center" border="0">
-        <img src="screenshots/File%20hash.png" width="400">
-        <br>
-        <strong>File Hash Tab</strong>
-      </td>
-      <td align="center" border="0">
-        <img src="screenshots/Text%20hash.png" width="400">
-        <br>
-        <strong>Text Hash Tab</strong>
-      </td>
-    </tr>
-    <tr>
-      <td align="center" border="0">
-        <img src="screenshots/Batch.png" width="350">
-        <br>
-        <strong>Batch Processing</strong>
-      </td>
-      <td align="center" border="0">
-        <img src="screenshots/Hash%20compare%20and%20identify.png" width="350">
-        <br>
-        <strong>Hash Compare & Identify</strong>
-      </td>
-    </tr>
-  </table>
+  <div style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;">
+    <div style="text-align: center;">
+      <img src="screenshots/File%20hash.png" width="400">
+      <br>
+      <strong>File Hash Tab</strong>
+    </div>
+    <div style="text-align: center;">
+      <img src="screenshots/Text%20hash.png" width="400">
+      <br>
+      <strong>Text Hash Tab</strong>
+    </div>
+  </div>
+  <br><br>
+  <div style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap;">
+    <div style="text-align: center;">
+      <img src="screenshots/Batch.png" width="350">
+      <br>
+      <strong>Batch Processing</strong>
+    </div>
+    <div style="text-align: center;">
+      <img src="screenshots/Hash%20compare%20and%20identify.png" width="350">
+      <br>
+      <strong>Hash Compare & Identify</strong>
+    </div>
+  </div>
 </div>
-
 ## Installation
 No installation required! This is a web-based tool that runs entirely in your browser.
 ```
