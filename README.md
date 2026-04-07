@@ -1,6 +1,6 @@
 # VERITAS File Integrity System
 
-A powerful client side cryptographic hash generator for file integrity verification.
+A powerful client side cryptographic hash generator for file integrity verification..
 
 ## Features
 - Multiple hash algorithms: MD5, SHA-1, SHA-256, SHA-512, SHA-3, RIPEMD-160
