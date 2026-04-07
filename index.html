@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
 <title>VERITAS · File Integrity System</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -42,7 +43,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;
 .logo-txt{font-family:var(--font2);font-size:17px;font-weight:800;letter-spacing:2px;color:#fff}
 .logo-badge{background:var(--c3);border:1px solid var(--border);padding:2px 8px;border-radius:4px;font-size:9px;color:var(--c);font-family:var(--font);margin-left:6px;letter-spacing:.8px}
 .nav-tabs{display:flex;gap:4px;background:rgba(0,0,0,.3);padding:4px;border-radius:9px;border:1px solid var(--border)}
-.nav-tab{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:.6px;color:var(--muted);cursor:pointer;transition:all .2s;background:none;border:none;font-family:var(--font2)}
+.nav-tab{padding:10px 14px;min-height:40px;border-radius:6px;font-size:11px;font-weight:600;letter-spacing:.6px;color:var(--muted);cursor:pointer;transition:all .2s;background:none;border:none;font-family:var(--font2)}
 .nav-tab.active{background:var(--c2);color:var(--c);box-shadow:0 0 12px rgba(0,245,212,.1)}
 .nav-tab:hover:not(.active){color:var(--text)}
 .nav-right{display:flex;align-items:center;gap:16px}
@@ -141,11 +142,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;
 @keyframes shim{from{transform:translateX(-100%)}to{transform:translateX(200%)}  }
 
 /* ── BUTTONS ── */
-.btn-primary{width:100%;padding:12px;background:transparent;border:1px solid var(--c);border-radius:var(--r3);color:var(--c);font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .22s;text-transform:uppercase;letter-spacing:.8px;font-family:var(--font2)}
+.btn-primary{width:100%;padding:14px 12px;min-height:44px;background:transparent;border:1px solid var(--c);border-radius:var(--r3);color:var(--c);font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .22s;text-transform:uppercase;letter-spacing:.8px;font-family:var(--font2)}
 .btn-primary:hover:not(:disabled){background:rgba(0,245,212,.07);box-shadow:0 0 20px rgba(0,245,212,.15);transform:translateY(-1px)}
 .btn-primary:active:not(:disabled){transform:translateY(0)}
 .btn-primary:disabled{opacity:.28;cursor:not-allowed;border-color:rgba(255,255,255,.15);color:rgba(255,255,255,.15)}
-.btn-secondary{padding:10px 16px;background:transparent;border:1px solid rgba(0,245,212,.2);border-radius:var(--r3);color:var(--muted);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;font-family:var(--font2);font-weight:600;white-space:nowrap}
+.btn-secondary{padding:12px 16px;min-height:40px;background:transparent;border:1px solid rgba(0,245,212,.2);border-radius:var(--r3);color:var(--muted);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;font-family:var(--font2);font-weight:600;white-space:nowrap}
 .btn-secondary:hover{border-color:var(--c);color:var(--c);background:rgba(0,245,212,.04)}
 
 /* ── TEXT INPUT ── */
@@ -257,6 +258,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;
 /* ── QR MODAL ── */
 .modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;animation:fadeIn .2s}
 .modal-overlay.show{display:flex}
+.modal{width:92%;margin:16px;max-height:90vh;overflow-y:auto}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .modal{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--r);padding:28px;max-width:380px;width:90%;animation:popIn .25s ease;box-shadow:0 24px 80px rgba(0,0,0,.8),var(--glow)}
 @keyframes popIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:none}}
@@ -294,13 +296,23 @@ body::before{content:'';position:fixed;inset:0;z-index:0;
   .stats-grid{grid-template-columns:repeat(3,1fr)}
 }
 @media(max-width:768px){
+  .batch-item{flex-wrap:wrap;gap:8px}
+  .batch-item-name{width:100%;white-space:normal}
+  .batch-item-size{order:-1}
+  .batch-item-status{padding:4px 8px;font-size:8px}
+  .batch-item-remove{padding:8px}
   .stats-grid{grid-template-columns:repeat(2,1fr)}
   .compare-grid{grid-template-columns:1fr}
   .export-row{flex-wrap:wrap}
-  .algo-grid{grid-template-columns:1fr}
+  .algo-grid{grid-template-columns:repeat(2,1fr);gap:10px}
   .nav-status span{font-size:8px}
   .nav-right{gap:4px}
   .clock{font-size:9px}
+  .history-item{padding:12px 10px}
+  .history-filename{font-size:11px;white-space:normal;word-break:break-word}
+  .history-meta{font-size:8px}
+  .history-status{font-size:8px;padding:3px 6px}
+  .history-hash{display:none}  /* saves space on very small screens */
   
   /* Header - stack logo and nav */
   .nav{flex-wrap:wrap; justify-content:center}
@@ -308,8 +320,8 @@ body::before{content:'';position:fixed;inset:0;z-index:0;
   .nav-right{margin-left:auto}
   
   /* Tabs - horizontal scroll for small screens */
-  .nav-tabs{display:flex; overflow-x:auto; white-space:nowrap; gap:4px; padding:4px; -webkit-overflow-scrolling:touch}
-  .nav-tab{flex-shrink:0; padding:6px 12px; font-size:10px}
+  .nav-tabs{display:flex; overflow-x:auto; white-space:nowrap; gap:6px; padding:4px 2px; -webkit-overflow-scrolling:touch; scrollbar-width:thin}
+  .nav-tab{flex-shrink:0; padding:8px 14px; font-size:10px; min-height:40px}
   
   /* Logo smaller */
   .logo-txt{font-size:14px}
@@ -323,9 +335,17 @@ body::before{content:'';position:fixed;inset:0;z-index:0;
   .clock{font-size:10px}
 }
 @media(max-width:480px){
+  .algo-grid{grid-template-columns:1fr}
+  .algo-item{padding:12px}
   .stats-grid{grid-template-columns:1fr}
   .hero-title{font-size:16px}
-  .card{padding:16px}
+  .hash-value{font-size:9px;word-break:break-word;overflow-x:auto;white-space:normal}
+  .str-hash-val{font-size:9px;word-break:break-word}
+  .compare-grid{grid-template-columns:1fr;gap:12px}
+  .verify-row{flex-wrap:wrap}
+  .verify-row .input-field{width:100%;margin-bottom:8px}
+  .verify-row .btn-secondary{width:100%}
+  .card{padding:12px}
   .stat-value{font-size:20px}
   .nav-tab{padding:4px 10px; font-size:9px}
   .logo-txt{font-size:12px}
@@ -695,7 +715,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;
   const MD=120; // Increased connection distance
   
   function resize(){W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;init()}
-  function init(){const n=Math.min(Math.floor((W*H)/11000),120);pts=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*1.1,vy:(Math.random()-.5)*1.1,r:Math.random()*2.0+.8}))}
+  function init(){const isMobile=window.innerWidth<=768; const maxParticles=isMobile?45:120; const n=Math.min(Math.floor((W*H)/(isMobile?25000:11000)),maxParticles);pts=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*1.1,vy:(Math.random()-.5)*1.1,r:Math.random()*2.0+.8}))}
   
   // Mouse events
   window.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY});
