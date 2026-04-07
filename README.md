@@ -16,7 +16,7 @@ A powerful client side cryptographic hash generator for file integrity verificat
 ## Live Demo
 [https://Laxdip.github.io/veritas-file-integrity/](https://Laxdip.github.io/veritas-file-integrity/)
 
-## 📸 Screenshots
+## Screenshots
 
 <div align="center">
   <table border="0" cellpadding="20">
