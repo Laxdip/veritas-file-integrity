@@ -301,7 +301,12 @@ body::before{content:'';position:fixed;inset:0;z-index:0;
   .batch-item-size{order:-1}
   .batch-item-status{padding:4px 8px;font-size:8px}
   .batch-item-remove{padding:8px}
-  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .stat-card{padding:10px}
+  .stat-label{font-size:7px;letter-spacing:0.3px}
+  .stat-value{font-size:16px}
+  .stat-value.sm{font-size:11px}
+  .stat-unit{font-size:7px}
   .compare-grid{grid-template-columns:1fr}
   .export-row{flex-wrap:wrap}
   .algo-grid{grid-template-columns:repeat(2,1fr);gap:10px}
@@ -337,7 +342,11 @@ body::before{content:'';position:fixed;inset:0;z-index:0;
 @media(max-width:480px){
   .algo-grid{grid-template-columns:1fr}
   .algo-item{padding:12px}
-  .stats-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:6px}
+  .stat-card{padding:8px}
+  .stat-label{font-size:6.5px}
+  .stat-value{font-size:14px}
+  .stat-value.sm{font-size:10px}
   .hero-title{font-size:16px}
   .hash-value{font-size:9px;word-break:break-word;overflow-x:auto;white-space:normal}
   .str-hash-val{font-size:9px;word-break:break-word}
