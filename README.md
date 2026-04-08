@@ -18,10 +18,12 @@ A powerful client side cryptographic hash generator for file integrity verificat
 
 ## Screenshots
 
-<img src="screenshots/File%20hash.png" width="400">
-<img src="screenshots/Text%20hash.png" width="400">
-<img src="screenshots/Batch.png" width="400">
-<img src="screenshots/Hash%20compare%20and%20identify.png" width="400">
+<div style="display: flex; gap: 0;">
+  <img src="screenshots/File%20hash.png" height="400">
+  <img src="screenshots/Text%20hash.png" height="400">
+  <img src="screenshots/Batch.png" height="400">
+  <img src="screenshots/Hash%20compare%20and%20identify.png" height="400">
+</div>
 
 ## Installation
 No installation required! This is a web-based tool that runs entirely in your browser.
