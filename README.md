@@ -18,39 +18,16 @@ A powerful client side cryptographic hash generator for file integrity verificat
 
 ## Screenshots
 
-<p align="center">
-  <picture>
-    <source media="(max-width: 768px)" srcset="screenshots/File%20hash.png">
-    <img src="screenshots/File%20hash.png" width="45%">
-  </picture>
-  &nbsp;&nbsp;
-  <picture>
-    <source media="(max-width: 768px)" srcset="screenshots/Text%20hash.png">
-    <img src="screenshots/Text%20hash.png" width="45%">
-  </picture>
-</p>
-
-<p align="center">
-  <b>File Hash Tab</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Text Hash Tab</b>
-</p>
-
-<br>
-
-<p align="center">
-  <picture>
-    <source media="(max-width: 768px)" srcset="screenshots/Batch.png">
-    <img src="screenshots/Batch.png" width="45%">
-  </picture>
-  &nbsp;&nbsp;
-  <picture>
-    <source media="(max-width: 768px)" srcset="screenshots/Hash%20compare%20and%20identify.png">
-    <img src="screenshots/   Hash%20compare%20and%20identify.png" width="45%">
-  </picture>
-</p>
-
-<p align="center">
-  <b>Batch Processing</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Hash Compare & Identify</b>
-</p>
+<div align="center">
+  
+  | Feature | Screenshot |
+  |---------|-------------|
+  | **File Hash Tab** | <img src="screenshots/File%20hash.png" width="100%"> |
+  | **Text Hash Tab** | <img src="screenshots/Text%20hash.png" width="100%"> |
+  | **Batch Processing** | <img src="screenshots/Batch.png" width="100%"> |
+  | **Hash Compare & Identify** | <img src="screenshots/Hash%20compare%20and%20identify.png" width="100%"> |
+  
+</div>
 
 ## Installation
 No installation required! This is a web-based tool that runs entirely in your browser.
