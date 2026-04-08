@@ -339,6 +339,33 @@ body::before{content:'';position:fixed;inset:0;z-index:0;
   .nav-right{gap:8px}
   .clock{font-size:10px}
 }
+@media(max-width:640px){
+  /* Hide Strings Hashed (4th) and Avg Speed (6th) */
+  .stat-card:nth-child(4),
+  .stat-card:nth-child(6){
+    display: none;
+  }
+  
+  /* Remaining 4 stats become 2 columns */
+  .stats-grid{
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  
+  .stat-card{
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .stat-label{
+    font-size: 8px;
+    white-space: normal;
+  }
+  
+  .stat-value{
+    font-size: 18px;
+  }
+}
 @media(max-width:480px){
   .algo-grid{grid-template-columns:1fr}
   .algo-item{padding:12px}
@@ -355,7 +382,6 @@ body::before{content:'';position:fixed;inset:0;z-index:0;
   .verify-row .input-field{width:100%;margin-bottom:8px}
   .verify-row .btn-secondary{width:100%}
   .card{padding:12px}
-  .stat-value{font-size:20px}
   .nav-tab{padding:4px 10px; font-size:9px}
   .logo-txt{font-size:12px}
   .logo-badge{font-size:7px}
