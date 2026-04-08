@@ -18,35 +18,39 @@ A powerful client side cryptographic hash generator for file integrity verificat
 
 ## Screenshots
 
-<div align="center">
-  <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
-    
-    <div style="flex: 1; min-width: 250px;">
-      <img src="screenshots/File%20hash.png" style="width: 100%; max-width: 400px;">
-      <br>
-      <strong>File Hash Tab</strong>
-    </div>
-    
-    <div style="flex: 1; min-width: 250px;">
-      <img src="screenshots/Text%20hash.png" style="width: 100%; max-width: 400px;">
-      <br>
-      <strong>Text Hash Tab</strong>
-    </div>
-    
-    <div style="flex: 1; min-width: 250px;">
-      <img src="screenshots/Batch.png" style="width: 100%; max-width: 350px;">
-      <br>
-      <strong>Batch Processing</strong>
-    </div>
-    
-    <div style="flex: 1; min-width: 250px;">
-      <img src="screenshots/Hash%20compare%20and%20identify.png" style="width: 100%; max-width: 350px;">
-      <br>
-      <strong>Hash Compare & Identify</strong>
-    </div>
-    
-  </div>
-</div>
+<p align="center">
+  <picture>
+    <source media="(max-width: 768px)" srcset="screenshots/File%20hash.png">
+    <img src="screenshots/File%20hash.png" width="45%">
+  </picture>
+  &nbsp;&nbsp;
+  <picture>
+    <source media="(max-width: 768px)" srcset="screenshots/Text%20hash.png">
+    <img src="screenshots/Text%20hash.png" width="45%">
+  </picture>
+</p>
+
+<p align="center">
+  <b>File Hash Tab</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Text Hash Tab</b>
+</p>
+
+<br>
+
+<p align="center">
+  <picture>
+    <source media="(max-width: 768px)" srcset="screenshots/Batch.png">
+    <img src="screenshots/Batch.png" width="45%">
+  </picture>
+  &nbsp;&nbsp;
+  <picture>
+    <source media="(max-width: 768px)" srcset="screenshots/Hash%20compare%20and%20identify.png">
+    <img src="screenshots/Hash%20compare%20and%20identify.png" width="45%">
+  </picture>
+</p>
+
+<p align="center">
+  <b>Batch Processing</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Hash Compare & Identify</b>
+</p>
 
 ## Installation
 No installation required! This is a web-based tool that runs entirely in your browser.
