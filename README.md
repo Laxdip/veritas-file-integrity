@@ -44,7 +44,7 @@ A powerful client side cryptographic hash generator for file integrity verificat
       <br>
       <strong>Hash Compare & Identify</strong>
     </div>
-    
+  </div>
 </div>
 
 ## Installation
