@@ -44,7 +44,7 @@ A powerful client side cryptographic hash generator for file integrity verificat
   &nbsp;&nbsp;
   <picture>
     <source media="(max-width: 768px)" srcset="screenshots/Hash%20compare%20and%20identify.png">
-    <img src="screenshots/Hash%20compare%20and%20identify.png" width="45%">
+    <img src="screenshots/   Hash%20compare%20and%20identify.png" width="45%">
   </picture>
 </p>
 
